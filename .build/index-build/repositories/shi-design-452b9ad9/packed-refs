@@ -1,0 +1,18 @@
+# pack-refs with: peeled fully-peeled sorted 
+823b13c90e3d100df4fe62673639b22728041d28 refs/heads/develop
+78375b2980f11313f608c37dac82b89d8a49409b refs/heads/feat/shi-design-consolidation-2026-05-25
+ae62e7c7fbdc802b6d6e74dad43c039065c8f3a6 refs/heads/feature/url-deps-conversion
+162e5b29070cf55e8b7ce8c634b43f7c969ccecd refs/heads/main
+a2d6ea1db657d674a26124d5de4c3cf7ce8724a1 refs/heads/pr-4
+a2d6ea1db657d674a26124d5de4c3cf7ce8724a1 refs/heads/pr-4-audit
+a2d6ea1db657d674a26124d5de4c3cf7ce8724a1 refs/heads/pr-4-head
+b6c37b3c7f6365cd0291f2db19a50eba37c765dc refs/pull/1/head
+f501e49a3f4677789aa41a46a5dd61cbe6fddb59 refs/pull/2/head
+ae62e7c7fbdc802b6d6e74dad43c039065c8f3a6 refs/pull/3/head
+10ba58790fcc77c0144d50843cdf0b167a010c6e refs/pull/4/head
+be9f2ad4274b722accfb15ca2bcde077cf76e2ac refs/pull/5/head
+dd0b492571fbace81fc11773da19904cb3a919c1 refs/pull/6/head
+de2b15765fd8dc9776a7880c389e5db3564f3665 refs/pull/7/head
+fe28e1afefc37bfea54fd208521251b43e2054c0 refs/pull/8/head
+78375b2980f11313f608c37dac82b89d8a49409b refs/pull/9/head
+7e60c9b73fa764da32966cf59d908f1c19f219fa refs/pull/9/merge
