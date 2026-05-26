@@ -71,6 +71,9 @@ public struct PrimitiveEntry: Sendable, Identifiable {
     }
 
     /// Convert to a CatalogEntry so the existing browse/detail views work unchanged.
+    ///
+    /// NP-5 fix: codeSnippet is forwarded so CodeBlockView renders the
+    /// paste-ready snippet instead of the "No code snippet defined" fallback.
     public func catalogEntry() -> CatalogEntry {
         CatalogEntry(
             id: id,
@@ -79,7 +82,8 @@ public struct PrimitiveEntry: Sendable, Identifiable {
             description: description,
             primitives: primitives.joined(separator: ","),
             wave: "0",
-            ssimStatus: "primitive"
+            ssimStatus: "primitive",
+            codeSnippet: codeSnippet
         )
     }
 }
@@ -98,9 +102,7 @@ public enum PrimitiveCatalog {
             widgetKind: "katagami.text",
             description: "Inline text node. The leaf-level text primitive; styled by Theme tokens and WSTypeScale.",
             tier: .atom,
-            codeSnippet: """
-            KatagamiText("Hello, Katagami!")
-            """
+            codeSnippet: #"KatagamiText("The quick brown fox jumps over the lazy dog")"#
         ),
         PrimitiveEntry(
             id: "KatagamiHeading",
@@ -108,9 +110,7 @@ public enum PrimitiveCatalog {
             widgetKind: "katagami.heading",
             description: "Section heading with semantic level (h1–h6). Renders at the scale defined by Theme.typeScale.",
             tier: .atom,
-            codeSnippet: """
-            KatagamiHeading("Section Title", level: .h2)
-            """
+            codeSnippet: #"KatagamiHeading(.h1, "Section Title")"#
         ),
         PrimitiveEntry(
             id: "KatagamiParagraph",
@@ -119,11 +119,7 @@ public enum PrimitiveCatalog {
             description: "Block-level text paragraph. Wraps KatagamiText children with paragraph spacing.",
             primitives: ["KatagamiText"],
             tier: .atom,
-            codeSnippet: """
-            KatagamiParagraph {
-                KatagamiText("Block text content.")
-            }
-            """
+            codeSnippet: #"KatagamiParagraph("Long-form body text with multiple lines.")"#
         ),
         PrimitiveEntry(
             id: "KatagamiEmphasis",
@@ -132,11 +128,7 @@ public enum PrimitiveCatalog {
             description: "Inline italic emphasis wrapper. Maps to <em> in web; italic font weight on native.",
             primitives: ["KatagamiText"],
             tier: .atom,
-            codeSnippet: """
-            KatagamiEmphasis {
-                KatagamiText("italicised text")
-            }
-            """
+            codeSnippet: #"KatagamiEmphasis("important")"#
         ),
         PrimitiveEntry(
             id: "KatagamiStrong",
@@ -145,11 +137,7 @@ public enum PrimitiveCatalog {
             description: "Inline bold emphasis wrapper. Maps to <strong> in web; semibold weight on native.",
             primitives: ["KatagamiText"],
             tier: .atom,
-            codeSnippet: """
-            KatagamiStrong {
-                KatagamiText("bold text")
-            }
-            """
+            codeSnippet: #"KatagamiStrong("urgent")"#
         ),
         PrimitiveEntry(
             id: "KatagamiCode",
@@ -157,9 +145,7 @@ public enum PrimitiveCatalog {
             widgetKind: "katagami.code",
             description: "Monospaced inline code snippet. Renders in SF Mono on Apple platforms.",
             tier: .atom,
-            codeSnippet: """
-            KatagamiCode("let x = 42")
-            """
+            codeSnippet: #"KatagamiCode("let x = 42")"#
         ),
         PrimitiveEntry(
             id: "KatagamiImage",
@@ -167,9 +153,7 @@ public enum PrimitiveCatalog {
             widgetKind: "katagami.image",
             description: "Static image node. Accepts asset name or URL string; falls back to placeholder on load failure.",
             tier: .atom,
-            codeSnippet: """
-            KatagamiImage(asset: "hero-banner", contentMode: .fill)
-            """
+            codeSnippet: #"KatagamiImage(url: URL(string: "https://...")!)"#
         ),
         PrimitiveEntry(
             id: "KatagamiLink",
@@ -178,11 +162,7 @@ public enum PrimitiveCatalog {
             description: "Tappable link primitive. Triggers navigation or URL open on activation.",
             primitives: ["KatagamiText"],
             tier: .atom,
-            codeSnippet: """
-            KatagamiLink(url: "https://shikki.io") {
-                KatagamiText("Visit shikki.io")
-            }
-            """
+            codeSnippet: #"KatagamiLink("Read more", url: URL(string: "https://shikki.io")!)"#
         ),
         PrimitiveEntry(
             id: "KatagamiButton",
@@ -192,9 +172,7 @@ public enum PrimitiveCatalog {
             primitives: ["KatagamiText"],
             tier: .atom,
             codeSnippet: """
-            KatagamiButton(action: "cta.tap") {
-                KatagamiText("Buy Now")
-            }
+            KatagamiButton("Click me") { /* action */ }
             """
         ),
         PrimitiveEntry(
@@ -203,9 +181,7 @@ public enum PrimitiveCatalog {
             widgetKind: "katagami.textfield",
             description: "Editable text input primitive. Binds to a string key in the widget's data bag.",
             tier: .atom,
-            codeSnippet: """
-            KatagamiTextField(placeholder: "Search…", binding: "query")
-            """
+            codeSnippet: #"KatagamiTextField(placeholder: "Enter email", text: $email)"#
         ),
         PrimitiveEntry(
             id: "KatagamiLineBreak",
@@ -213,9 +189,7 @@ public enum PrimitiveCatalog {
             widgetKind: "katagami.linebreak",
             description: "Explicit line-break node. Forces a vertical gap in inline content flow.",
             tier: .atom,
-            codeSnippet: """
-            KatagamiLineBreak()
-            """
+            codeSnippet: "KatagamiLine()"
         ),
         PrimitiveEntry(
             id: "KatagamiInlineGroup",
@@ -224,12 +198,7 @@ public enum PrimitiveCatalog {
             description: "Horizontal inline wrapper for mixed text/emphasis/link content without layout semantics.",
             primitives: ["KatagamiText", "KatagamiEmphasis", "KatagamiLink"],
             tier: .atom,
-            codeSnippet: """
-            KatagamiInlineGroup {
-                KatagamiText("By ")
-                KatagamiStrong { KatagamiText("Shikki") }
-            }
-            """
+            codeSnippet: "KatagamiInlineBreak()"
         ),
         PrimitiveEntry(
             id: "KatagamiMarquee",
@@ -238,11 +207,7 @@ public enum PrimitiveCatalog {
             description: "Horizontally scrolling ticker text. Used for live data labels and alert banners.",
             primitives: ["KatagamiText"],
             tier: .atom,
-            codeSnippet: """
-            KatagamiMarquee(speed: .normal) {
-                KatagamiText("Live · Breaking · Now →")
-            }
-            """
+            codeSnippet: #"KatagamiMarquee("Scrolling banner text")"#
         ),
     ]
 
@@ -256,9 +221,10 @@ public enum PrimitiveCatalog {
             description: "Horizontal stack layout. Aligns children side-by-side with configurable spacing and alignment.",
             tier: .layout,
             codeSnippet: """
-            KatagamiHStack(spacing: 8, alignment: .center) {
-                KatagamiImage(asset: "avatar")
-                KatagamiText("Jane Doe")
+            KatagamiHStack(spacing: 12) {
+                KatagamiText("A")
+                KatagamiText("B")
+                KatagamiText("C")
             }
             """
         ),
@@ -269,9 +235,9 @@ public enum PrimitiveCatalog {
             description: "Vertical stack layout. Stacks children top-to-bottom with configurable spacing.",
             tier: .layout,
             codeSnippet: """
-            KatagamiVStack(spacing: 4, alignment: .leading) {
-                KatagamiHeading("Title", level: .h3)
-                KatagamiText("Supporting text")
+            KatagamiVStack(spacing: 8) {
+                KatagamiText("Top")
+                KatagamiText("Bottom")
             }
             """
         ),
@@ -282,9 +248,9 @@ public enum PrimitiveCatalog {
             description: "Z-axis (depth) stack layout. Overlays children in painter's order (first = bottom).",
             tier: .layout,
             codeSnippet: """
-            KatagamiZStack(alignment: .bottomTrailing) {
-                KatagamiImage(asset: "poster")
-                KatagamiBadge(text: "LIVE")
+            KatagamiZStack {
+                KatagamiText("Layer 1")
+                KatagamiText("Layer 2")
             }
             """
         ),
@@ -295,10 +261,8 @@ public enum PrimitiveCatalog {
             description: "Adaptive 2-D grid layout. Column count resolves from viewport width and minItemWidth.",
             tier: .layout,
             codeSnippet: """
-            KatagamiGrid(columns: .adaptive(min: 160), spacing: 12) {
-                ForEach(products) { product in
-                    KatagamiText(product.name)
-                }
+            KatagamiGrid(columns: 3, spacing: 8) {
+                ForEach(1...6, id: \\.self) { KatagamiText("\\($0)") }
             }
             """
         ),
@@ -309,9 +273,9 @@ public enum PrimitiveCatalog {
             description: "Scrollable container. Supports horizontal, vertical, and both-axis scroll directions.",
             tier: .layout,
             codeSnippet: """
-            KatagamiScrollView(.horizontal, showsIndicators: false) {
-                KatagamiHStack(spacing: 12) {
-                    ForEach(items) { KatagamiText($0.label) }
+            KatagamiScrollView(.horizontal) {
+                KatagamiHStack {
+                    ForEach(0..<10, id: \\.self) { ... }
                 }
             }
             """
@@ -337,8 +301,8 @@ public enum PrimitiveCatalog {
             description: "Modal drawer container. Slides in from bottom (iOS) or side (macOS); overlays content.",
             tier: .layout,
             codeSnippet: """
-            KatagamiDrawer(isPresented: $showCart, edge: .bottom) {
-                KatagamiVStack { /* cart contents */ }
+            KatagamiDrawer(side: .trailing, isOpen: $isOpen) {
+                // content
             }
             """
         ),
@@ -391,11 +355,7 @@ public enum PrimitiveCatalog {
             widgetKind: "katagami.asyncimage",
             description: "URL-sourced image with async loading, placeholder, and failure states.",
             tier: .component,
-            codeSnippet: """
-            KatagamiAsyncImage(url: product.imageURL) {
-                KatagamiText("Loading…") // placeholder
-            }
-            """
+            codeSnippet: #"KatagamiAsyncImage(url: URL(string: "https://example.com/img.jpg")!)"#
         ),
         PrimitiveEntry(
             id: "KatagamiBadge",
@@ -404,9 +364,7 @@ public enum PrimitiveCatalog {
             description: "Pill-shaped text badge. Renders DSKintsugi semantic color tokens for status/tier indication.",
             primitives: ["KatagamiText"],
             tier: .component,
-            codeSnippet: """
-            KatagamiBadge(text: "LIVE", color: .sgCrimson)
-            """
+            codeSnippet: #"KatagamiBadge(text: "NEW", style: .accent)"#
         ),
         PrimitiveEntry(
             id: "KatagamiOverlayMarker",
@@ -415,13 +373,7 @@ public enum PrimitiveCatalog {
             description: "Positioned overlay chip for labelling images and cards (e.g. 'SALE', 'NEW'). Anchored via alignment.",
             primitives: ["KatagamiText"],
             tier: .component,
-            codeSnippet: """
-            KatagamiOverlayMarker(
-                text: "SALE",
-                alignment: .topLeading,
-                style: .accent
-            )
-            """
+            codeSnippet: "KatagamiOverlayMarker(size: 48, color: .accentColor)"
         ),
         PrimitiveEntry(
             id: "KatagamiQRMarker",
@@ -429,9 +381,7 @@ public enum PrimitiveCatalog {
             widgetKind: "katagami.qrmarker",
             description: "QR code renderer. Encodes a URL string to a scannable QR image with configurable size.",
             tier: .component,
-            codeSnippet: """
-            KatagamiQRMarker(url: "https://shikki.io/promo", size: 120)
-            """
+            codeSnippet: #"KatagamiQRCode(payload: "https://example.com/deep-link")"#
         ),
     ]
 
@@ -448,7 +398,7 @@ public enum PrimitiveCatalog {
             codeSnippet: """
             KatagamiShadowedCard(elevation: .medium) {
                 KatagamiVStack(spacing: 8) {
-                    KatagamiHeading("Card Title", level: .h3)
+                    KatagamiHeading(.h3, "Card Title")
                     KatagamiText("Card body text.")
                 }
             }
