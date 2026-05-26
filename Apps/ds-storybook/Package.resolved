@@ -1,0 +1,15 @@
+{
+  "originHash" : "00998e5833c9636a23291b5ec9c2ea9cb2e028d98080d5dd26d2e09d97f735cf",
+  "pins" : [
+    {
+      "identity" : "corekit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FJ-Studios/CoreKit.git",
+      "state" : {
+        "revision" : "55c7eaab259f89dffe3e49b1c076d909decd022d",
+        "version" : "0.1.0"
+      }
+    }
+  ],
+  "version" : 3
+}
