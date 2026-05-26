@@ -41,9 +41,6 @@ let package = Package(
         ),
         // sm-widgets-native — local path to repo root (root Package.swift added 2026-05-26 via #32).
         // Uses root products: SMWidgetsCore, SMWidgets, SMWidgetsKatagami.
-        // GitHub URL dep (.package(url: "https://github.com/clifftechnologies-co/sm-widgets-native.git", branch: "develop"))
-        // will replace this once katagami-player + Katagami have standalone GitHub URL deps
-        // (blocked: shi ws link workspace-resolver — tracked as NP-root-pkg follow-up).
         .package(
             path: "/Users/jeoffrey/.shikki/workspaces/cliff-tech/projects/sm-widgets-native"
         ),
@@ -52,6 +49,14 @@ let package = Package(
         .package(
             url: "https://github.com/pointfreeco/swift-snapshot-testing.git",
             from: "1.17.0"
+        ),
+        // SigmaWidgetPreviewBridge — live sigma catalog render for ds-storybook.
+        // 16 WidgetPreviewProvider implementations (9 molecules + 3 layout + 4 surfaces)
+        // rendered with KatagamiThemePreset.sigma (sgCrimson / sgGold / sgInk brand palette).
+        // Points to the develop branch of sigma-analytics web/app/sources.
+        // Package identity = "sources" (SPM uses directory name for file-system deps).
+        .package(
+            path: "/Users/jeoffrey/.shikki/workspaces/fj-studio/projects/sigma-analytics/web/app/sources"
         ),
     ],
     targets: [
@@ -86,6 +91,9 @@ let package = Package(
                 "CTechWidgetPreviewBridge",
                 .product(name: "KatagamiSwiftUI", package: "Katagami"),
                 .product(name: "KatagamiCore", package: "Katagami"),
+                // SigmaWidgetPreviewBridge — sigma catalog live renders.
+                // Package identity = directory name "sources" (SPM file-system resolution).
+                .product(name: "SigmaWidgetPreviewBridge", package: "sources"),
             ],
             path: "Sources/DSStorybookApp"
         ),
