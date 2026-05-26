@@ -24,6 +24,9 @@ import CTechWidgetPreviewBridge
 import DSStorybookKit
 import Foundation
 import SwiftUI
+#if canImport(SigmaWidgetPreviewBridge)
+import SigmaWidgetPreviewBridge
+#endif
 
 // MARK: - @main App (Swift 6 / ArgumentParser-compatible)
 
@@ -51,9 +54,17 @@ struct DSStorybookSwiftUIApp: App {
     // Katagami canonical primitive (28 total — atoms/layout/components/composite).
     // Without this, clicking any primitive in the sidebar shows the orange
     // "No preview registered for widgetKind: katagami.*" fallback.
+    //
+    // SigmaWidgetPreviewBridge.registerAll() wires 16 providers for the sigma
+    // catalog (9 molecules + 3 layout + 4 surfaces) rendered with
+    // KatagamiThemePreset.sigma (sgCrimson / sgGold / sgInk brand palette).
+    // Gated behind canImport so ds-storybook builds when sigma is absent.
     init() {
         CTechWidgetPreviewBridge.registerAll()
         KatagamiPrimitivePreviewBridge.registerAll()
+        #if canImport(SigmaWidgetPreviewBridge)
+        SigmaWidgetPreviewBridge.registerAll()
+        #endif
     }
 
     var body: some Scene {
