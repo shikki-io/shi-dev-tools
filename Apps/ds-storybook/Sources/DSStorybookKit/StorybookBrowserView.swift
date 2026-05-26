@@ -3,6 +3,9 @@
 // W5.0c: Browse mode — NavigationSplitView with sidebar (entry list)
 // and detail pane (native widget preview via WidgetPreviewRegistry).
 //
+// NP-3: CodeBlockView embedded in StorybookDetailView below Preview,
+// above Description. Renders entry.codeSnippet or auto-derived fallback.
+//
 // Does not import SMWidgets or any external widget package.
 // Preview is delegated to WidgetPreviewRegistry registered providers.
 
@@ -114,6 +117,15 @@ struct StorybookDetailView: View {
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(.secondary.opacity(0.2), lineWidth: 1)
                     )
+
+                Divider()
+
+                // NP-3: Code Block — paste-ready Swift DSL snippet
+                Text("Swift DSL")
+                    .font(.headline)
+
+                CodeBlockView(snippet: entry.codeSnippet, widgetKind: entry.widgetKind)
+                    .frame(minHeight: 80)
 
                 Divider()
 

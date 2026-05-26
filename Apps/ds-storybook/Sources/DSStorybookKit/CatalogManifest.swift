@@ -5,6 +5,7 @@
 //
 // W5.0b: --catalog flag decodes this; dumps count + names to console.
 // W5.0c: Browse mode uses CatalogEntry to drive NavigationSplitView.
+// NP-3: CatalogEntry gains optional codeSnippet field (backward-compatible).
 
 import Foundation
 
@@ -54,6 +55,10 @@ public struct CatalogEntry: Sendable, Codable, Equatable, Identifiable {
     public let wave: String
     /// SSIM status string (e.g. "pendingImpl", "pass(0.97)", "fail(0.91/0.95)").
     public let ssimStatus: String
+    /// NP-3: Optional paste-ready Swift DSL snippet. Manifest-authored per widget.
+    /// When nil, CodeBlockView auto-derives a usage comment from widgetKind.
+    /// Backward-compatible: older JSON without this key decodes to nil.
+    public let codeSnippet: String?
 
     public init(
         id: String,
@@ -62,7 +67,8 @@ public struct CatalogEntry: Sendable, Codable, Equatable, Identifiable {
         description: String,
         primitives: String,
         wave: String,
-        ssimStatus: String
+        ssimStatus: String,
+        codeSnippet: String? = nil
     ) {
         self.id = id
         self.widgetKind = widgetKind
@@ -71,6 +77,7 @@ public struct CatalogEntry: Sendable, Codable, Equatable, Identifiable {
         self.primitives = primitives
         self.wave = wave
         self.ssimStatus = ssimStatus
+        self.codeSnippet = codeSnippet
     }
 
     /// Primitive list split from comma-separated string.
