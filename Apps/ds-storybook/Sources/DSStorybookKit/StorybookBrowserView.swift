@@ -263,7 +263,7 @@ public struct StorybookBrowserView: View {
         ContentUnavailableView(
             "No catalog loaded",
             systemImage: "rectangle.stack",
-            description: Text("Pass --catalog <path> to load a widget manifest.")
+            description: Text("Use the Projects picker in the toolbar to load a project,\nor pass --catalog <path> at launch.")
         )
     }
 }

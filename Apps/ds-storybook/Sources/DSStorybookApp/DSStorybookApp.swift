@@ -8,6 +8,11 @@
 //   D4: UserWidgetCatalog wired — operator can drop JSON files into
 //       ~/.shikki/storybook/user-widgets/ and they appear in sidebar within 2s.
 //
+// Settings system:
+//   S1: ProjectRegistry seeded on first launch (c-tech + sigma + Katagami Primitives).
+//   S2: Settings scene (Cmd+,) with Projects / Defaults / Tokens tabs.
+//   S3: Toolbar "Projects" picker — switches without restart via ManifestEmitter.
+//
 // Usage:
 //   swift run --package-path Apps/ds-storybook ds-storybook \
 //             --catalog /tmp/c-tech-manifest.json
@@ -30,10 +35,10 @@ struct DSStorybookSwiftUIApp: App {
     static let listOnly: Bool = CommandLine.arguments.contains("--list")
 
     // D4: UserWidgetCatalog — instantiated once; FileMonitor lives here.
-    // @StateObject would be ideal but App init precedes scene, so we keep
-    // this as a plain stored property instead. ObservedObject in the root
-    // View picks up published changes.
     let userCatalog = UserWidgetCatalog()
+
+    // S1: ProjectRegistry — loads/seeds projects.json, drives toolbar picker.
+    let projectRegistry = ProjectRegistry()
 
     // MARK: - Init — register widget preview providers before any view loads.
     //
@@ -52,19 +57,19 @@ struct DSStorybookSwiftUIApp: App {
     }
 
     var body: some Scene {
+        // MARK: Main window
         WindowGroup("ds-storybook") {
-            StorybookBrowserView(manifest: Self.parsedManifest, userCatalog: userCatalog)
+            RootView(
+                initialManifest: Self.parsedManifest,
+                userCatalog: userCatalog,
+                registry: projectRegistry
+            )
         }
         .windowStyle(.automatic)
-        // macOS 14+: request a comfortable canvas that shows the full widget
-        // chrome without clipping. Operator default was ~580×430 which cut
-        // off card shadows and avatar overlays.
         .defaultSize(width: 1280, height: 800)
         .commands {
             CommandGroup(after: .windowArrangement) {
                 Button("Reset Window Size") {
-                    // Cmd+0 — return window to the 1280×800 default.
-                    // NSWindow resize is handled by NSApp.keyWindow on macOS 14+.
                     if let window = NSApp.keyWindow {
                         let frame = NSRect(
                             x: window.frame.origin.x,
@@ -78,15 +83,17 @@ struct DSStorybookSwiftUIApp: App {
                 .keyboardShortcut("0", modifiers: .command)
             }
         }
+
+        // MARK: S2: Settings scene (Cmd+,)
+        Settings {
+            SettingsView(registry: projectRegistry)
+        }
     }
 
     // MARK: - Argument resolution
 
     private static func loadManifestFromArgs() -> CatalogManifest {
         let args = CommandLine.arguments
-
-        // Print entry count + names to stdout (W5.0b acceptance).
-        // We do this as a side-effect here because App.main() doesn't return.
 
         guard let catalogIdx = args.firstIndex(of: "--catalog"),
               catalogIdx + 1 < args.count else {
@@ -109,7 +116,6 @@ struct DSStorybookSwiftUIApp: App {
         do {
             let manifest = try loadManifest(at: path)
 
-            // W5.0b: dump entry count + names to console.
             print("ds-storybook: loaded \(manifest.entryCount) widget\(manifest.entryCount == 1 ? "" : "s") from \(path)")
             for entry in manifest.entries {
                 print("  [\(entry.wave)] \(entry.displayName) (\(entry.widgetKind)) — \(entry.primitiveList.count) primitives")
@@ -133,6 +139,47 @@ struct DSStorybookSwiftUIApp: App {
 
         let data = try Data(contentsOf: URL(fileURLWithPath: path))
         return try CatalogManifest.decode(from: data)
+    }
+}
+
+// MARK: - RootView (S3 — holds mutable manifest state, owns toolbar)
+
+/// Root container that owns the mutable manifest and the project-switch callback.
+/// StorybookBrowserView is reconstructed in-place when the operator switches projects.
+struct RootView: View {
+    @State private var activeManifest: CatalogManifest
+    @ObservedObject var userCatalog: UserWidgetCatalog
+    @ObservedObject var registry: ProjectRegistry
+
+    init(
+        initialManifest: CatalogManifest,
+        userCatalog: UserWidgetCatalog,
+        registry: ProjectRegistry
+    ) {
+        _activeManifest = State(initialValue: initialManifest)
+        self.userCatalog = userCatalog
+        self.registry = registry
+    }
+
+    var body: some View {
+        StorybookBrowserView(manifest: activeManifest, userCatalog: userCatalog)
+            .toolbar {
+                // S3: Project picker in leading navigation area.
+                ToolbarItem(placement: .navigation) {
+                    ProjectPickerToolbar(registry: registry) { @MainActor result in
+                        switch result {
+                        case .manifest(let newManifest):
+                            activeManifest = newManifest
+                        case .builtIn:
+                            // Built-in: clear external manifest so PrimitiveCatalog shows.
+                            activeManifest = CatalogManifest(entries: [])
+                        case .failed:
+                            // Error already shown in the picker's popover; keep current manifest.
+                            break
+                        }
+                    }
+                }
+            }
     }
 }
 
