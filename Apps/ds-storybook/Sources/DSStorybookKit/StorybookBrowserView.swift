@@ -6,6 +6,9 @@
 // NP-1: Primitives Showcase — new "Primitives" sidebar section above
 // the per-client widget catalog. Q1 default: PrimitiveCatalog.all when
 // manifest is empty (no --catalog passed).
+// NP-2: Token Inspector sidebar section below the Widgets section.
+// Q4 Option A fast-path: sidebar SECTION, not TabView mode.
+// Q3: renders ONLY the catalog's brand (sigma by default).
 // NP-3: CodeBlockView embedded in StorybookDetailView below Preview,
 // above Description. Renders entry.codeSnippet or auto-derived fallback.
 //
@@ -14,6 +17,15 @@
 
 import SwiftUI
 
+// MARK: - SidebarSelection
+
+/// Unified selection type covering primitives, widget entries, and the Token Inspector.
+enum SidebarSelection: Hashable {
+    case primitive(String)
+    case entry(String)
+    case tokenInspector
+}
+
 // MARK: - StorybookBrowserView
 
 /// Top-level browse view for the ds-storybook app.
@@ -21,22 +33,30 @@ import SwiftUI
 /// Sidebar sections (in order):
 ///   1. Primitives — 28 Katagami canonical primitives (always shown; Q1 default when no --catalog)
 ///   2. Widgets — per-client CatalogEntry list (shown only when --catalog loaded non-empty)
+///   3. Design Tokens — DSKintsugi token inspector (Q4 Option A sidebar section)
 ///
-/// Detail: registered WidgetPreviewProvider.previewView(for:) result.
+/// Detail: registered WidgetPreviewProvider.previewView(for:) result, or TokenInspectorView.
 /// Defaults to first primitive on launch.
 public struct StorybookBrowserView: View {
     public let manifest: CatalogManifest
-    @State private var selectedID: String?
+    @State private var selection: SidebarSelection?
 
-    /// The active detail item, resolved from selectedID across both primitive and widget entries.
+    /// Brand resolved from the catalog brand hint (catalog id prefix heuristic).
+    private var resolvedBrand: TokenBrand {
+        let hint = manifest.entries.first?.widgetKind ?? "sigma"
+        return TokenBrand.resolve(from: hint)
+    }
+
+    /// The active CatalogEntry (nil when tokenInspector is selected or nothing selected).
     private var activeEntry: CatalogEntry? {
-        guard let id = selectedID else { return nil }
-        // Check primitives first (id is e.g. "KatagamiText")
-        if let primitive = PrimitiveCatalog.all.first(where: { $0.id == id }) {
-            return primitive.catalogEntry()
+        switch selection {
+        case .primitive(let id):
+            return PrimitiveCatalog.all.first(where: { $0.id == id })?.catalogEntry()
+        case .entry(let id):
+            return manifest.entries.first(where: { $0.id == id })
+        default:
+            return nil
         }
-        // Then widget catalog
-        return manifest.entries.first(where: { $0.id == id })
     }
 
     public init(manifest: CatalogManifest) {
@@ -45,12 +65,12 @@ public struct StorybookBrowserView: View {
 
     public var body: some View {
         NavigationSplitView {
-            List(selection: $selectedID) {
+            List(selection: $selection) {
                 // MARK: Primitives Section (NP-1 — always shown above widgets)
                 Section("Primitives") {
                     ForEach(PrimitiveCatalog.all) { primitive in
                         PrimitiveSidebarRow(primitive: primitive)
-                            .tag(primitive.id)
+                            .tag(SidebarSelection.primitive(primitive.id))
                     }
                 }
 
@@ -59,28 +79,26 @@ public struct StorybookBrowserView: View {
                     Section("Widgets") {
                         ForEach(manifest.entries) { entry in
                             StorybookSidebarRow(entry: entry)
-                                .tag(entry.id)
+                                .tag(SidebarSelection.entry(entry.id))
                         }
                     }
+                }
+
+                // MARK: Token Inspector section (NP-2 Q4)
+                Section("Design Tokens") {
+                    Label("Token Inspector", systemImage: "paintpalette")
+                        .tag(SidebarSelection.tokenInspector)
                 }
             }
             .navigationTitle("ds-storybook")
             .navigationSubtitle(subtitleText)
         } detail: {
-            if let entry = activeEntry {
-                StorybookDetailView(entry: entry)
-            } else {
-                ContentUnavailableView(
-                    "No catalog loaded",
-                    systemImage: "rectangle.stack",
-                    description: Text("Pass --catalog <path> to load a widget manifest.")
-                )
-            }
+            detailPane
         }
         .onAppear {
-            if selectedID == nil {
+            if selection == nil {
                 // Q1 default: select first primitive
-                selectedID = PrimitiveCatalog.all.first?.id
+                selection = .primitive(PrimitiveCatalog.all.first?.id ?? "")
             }
         }
     }
@@ -89,9 +107,40 @@ public struct StorybookBrowserView: View {
         let wCount = manifest.entryCount
         let pCount = PrimitiveCatalog.all.count
         if wCount > 0 {
-            return "\(pCount) primitives · \(wCount) widget\(wCount == 1 ? "" : "s")"
+            return "\(pCount) primitives · \(wCount) widget\(wCount == 1 ? "" : "s") · \(resolvedBrand.displayName)"
         }
         return "\(pCount) primitives"
+    }
+
+    @ViewBuilder
+    private var detailPane: some View {
+        switch selection {
+        case .primitive(let id):
+            if let entry = PrimitiveCatalog.all.first(where: { $0.id == id })?.catalogEntry() {
+                StorybookDetailView(entry: entry)
+            } else {
+                noSelectionView
+            }
+        case .entry(let id):
+            if let entry = manifest.entries.first(where: { $0.id == id }) {
+                StorybookDetailView(entry: entry)
+            } else {
+                noSelectionView
+            }
+        case .tokenInspector:
+            TokenInspectorView(brand: resolvedBrand)
+        case nil:
+            noSelectionView
+        }
+    }
+
+    @ViewBuilder
+    private var noSelectionView: some View {
+        ContentUnavailableView(
+            "No catalog loaded",
+            systemImage: "rectangle.stack",
+            description: Text("Pass --catalog <path> to load a widget manifest.")
+        )
     }
 }
 
