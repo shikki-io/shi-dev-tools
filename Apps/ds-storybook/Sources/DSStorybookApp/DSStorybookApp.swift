@@ -4,6 +4,10 @@
 // W5.0b: --catalog flag — decodes CatalogManifest JSON, dumps entry count.
 // W5.0c: Browse mode — passes manifest to StorybookBrowserView.
 //
+// UX Upgrade:
+//   D4: UserWidgetCatalog wired — operator can drop JSON files into
+//       ~/.shikki/storybook/user-widgets/ and they appear in sidebar within 2s.
+//
 // Usage:
 //   swift run --package-path Apps/ds-storybook ds-storybook \
 //             --catalog /tmp/c-tech-manifest.json
@@ -25,6 +29,12 @@ struct DSStorybookSwiftUIApp: App {
     static let parsedManifest: CatalogManifest = loadManifestFromArgs()
     static let listOnly: Bool = CommandLine.arguments.contains("--list")
 
+    // D4: UserWidgetCatalog — instantiated once; FileMonitor lives here.
+    // @StateObject would be ideal but App init precedes scene, so we keep
+    // this as a plain stored property instead. ObservedObject in the root
+    // View picks up published changes.
+    let userCatalog = UserWidgetCatalog()
+
     // MARK: - Init — register widget preview providers before any view loads.
     //
     // CTechWidgetPreviewBridge.registerAll() wires one WidgetPreviewProvider per
@@ -43,7 +53,7 @@ struct DSStorybookSwiftUIApp: App {
 
     var body: some Scene {
         WindowGroup("ds-storybook") {
-            StorybookBrowserView(manifest: Self.parsedManifest)
+            StorybookBrowserView(manifest: Self.parsedManifest, userCatalog: userCatalog)
         }
         .windowStyle(.automatic)
         // macOS 14+: request a comfortable canvas that shows the full widget
