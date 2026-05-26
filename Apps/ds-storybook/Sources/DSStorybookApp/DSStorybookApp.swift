@@ -10,6 +10,7 @@
 //
 // swift run local only — no bundle-id needed for this slice.
 
+import CTechWidgetPreviewBridge
 import DSStorybookKit
 import Foundation
 import SwiftUI
@@ -22,6 +23,16 @@ struct DSStorybookSwiftUIApp: App {
 
     static let parsedManifest: CatalogManifest = loadManifestFromArgs()
     static let listOnly: Bool = CommandLine.arguments.contains("--list")
+
+    // MARK: - Init — register widget preview providers before any view loads.
+    //
+    // CTechWidgetPreviewBridge.registerAll() wires one WidgetPreviewProvider per
+    // c-tech widgetKind ("people", "product", "qr", "endcap", "program_guide",
+    // "cart") into WidgetPreviewRegistry.shared. StorybookDetailView queries the
+    // registry; providers render KatagamiView widgets via KatagamiSwiftUIRenderer.
+    init() {
+        CTechWidgetPreviewBridge.registerAll()
+    }
 
     var body: some Scene {
         WindowGroup("ds-storybook") {

@@ -54,6 +54,11 @@ public final class WidgetPreviewRegistry: @unchecked Sendable {
 
     /// All registered widgetKind strings.
     public var registeredKinds: [String] { Array(providers.keys.sorted()) }
+
+    /// Remove all registered providers. Use in test teardown to prevent cross-test contamination.
+    public func reset() {
+        providers.removeAll()
+    }
 }
 
 // MARK: - FallbackPreviewProvider
