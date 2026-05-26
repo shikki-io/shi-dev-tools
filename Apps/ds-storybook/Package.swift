@@ -33,21 +33,19 @@ let package = Package(
             path: "/Users/jeoffrey/.shikki/workspaces/obyw-one/projects/shikki/packages/Katagami"
         ),
         // katagami-player — explicit local path to override CTechPlayer's git URL dep.
-        // CTechPlayer (transitive via SMWidgets) declares katagami-player via git URL;
-        // SMWidgets re-declares it as a local path. SwiftPM crashes (ARC overflow) when
-        // both are visible to the outer consumer unless the outer package also pins to the
-        // local path. This entry forces consistent local-path resolution.
+        // sm-widgets-native declares katagami-player as a local path; CTechPlayer (transitive)
+        // previously declared it via git URL. Both consumers must pin to the same identity
+        // (local path) to avoid SwiftPM ARC overflow. This entry forces consistent resolution.
         .package(
             path: "/Users/jeoffrey/.shikki/workspaces/obyw-one/projects/katagami-player"
         ),
-        // CTechWidgetPreviewBridge — live-render providers for all c-tech widgets.
-        // PR #30 merged to sm-widgets-native/develop 2026-05-26.
-        // sm-widgets-native has no root Package.swift (packages/ subdir layout),
-        // so we reference the SMWidgets sub-package directly via workspace path.
-        // TODO: add root Package.swift to sm-widgets-native OR extract SMWidgets as
-        // its own repo to enable GitHub URL dep (tracked: shi ws link workspace-resolver).
+        // sm-widgets-native — local path to repo root (root Package.swift added 2026-05-26 via #32).
+        // Uses root products: SMWidgetsCore, SMWidgets, SMWidgetsKatagami.
+        // GitHub URL dep (.package(url: "https://github.com/clifftechnologies-co/sm-widgets-native.git", branch: "develop"))
+        // will replace this once katagami-player + Katagami have standalone GitHub URL deps
+        // (blocked: shi ws link workspace-resolver — tracked as NP-root-pkg follow-up).
         .package(
-            path: "/Users/jeoffrey/.shikki/workspaces/cliff-tech/projects/sm-widgets-native/packages/SMWidgets"
+            path: "/Users/jeoffrey/.shikki/workspaces/cliff-tech/projects/sm-widgets-native"
         ),
         // swift-snapshot-testing (Point-Free) — SwiftUI/NSView pixel snapshot tests.
         // Test target only — not linked into production targets.
@@ -66,14 +64,28 @@ let package = Package(
             ],
             path: "Sources/DSStorybookKit"
         ),
+        // CTechWidgetPreviewBridge — live-render WidgetPreviewProvider implementations
+        // for all c-tech widgets. Moved from sm-widgets-native/packages/SMWidgets here
+        // to break the circular dep (SMWidgets → DSStorybookKit → ds-storybook).
+        .target(
+            name: "CTechWidgetPreviewBridge",
+            dependencies: [
+                "DSStorybookKit",
+                .product(name: "KatagamiCore", package: "Katagami"),
+                .product(name: "KatagamiSwiftUI", package: "Katagami"),
+                .product(name: "SMWidgetsKatagami", package: "sm-widgets-native"),
+                .product(name: "SMWidgetsCore", package: "sm-widgets-native"),
+            ],
+            path: "Sources/CTechWidgetPreviewBridge"
+        ),
         // Executable: CLI entry point (--catalog flag, arguments parsed manually).
         .executableTarget(
             name: "DSStorybookApp",
             dependencies: [
                 "DSStorybookKit",
+                "CTechWidgetPreviewBridge",
                 .product(name: "KatagamiSwiftUI", package: "Katagami"),
                 .product(name: "KatagamiCore", package: "Katagami"),
-                .product(name: "CTechWidgetPreviewBridge", package: "SMWidgets"),
             ],
             path: "Sources/DSStorybookApp"
         ),
@@ -83,9 +95,17 @@ let package = Package(
                 "DSStorybookKit",
                 .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
                 // Live-render proof: CTechWidgetPreviewBridge.registerAll() in TP-DSS-S06.
-                .product(name: "CTechWidgetPreviewBridge", package: "SMWidgets"),
+                "CTechWidgetPreviewBridge",
             ],
             path: "Tests/DSStorybookKitTests"
+        ),
+        .testTarget(
+            name: "CTechWidgetPreviewBridgeTests",
+            dependencies: [
+                "CTechWidgetPreviewBridge",
+                "DSStorybookKit",
+            ],
+            path: "Tests/CTechWidgetPreviewBridgeTests"
         ),
     ]
 )
