@@ -31,8 +31,14 @@ struct DSStorybookSwiftUIApp: App {
     // c-tech widgetKind ("people", "product", "qr", "endcap", "program_guide",
     // "cart") into WidgetPreviewRegistry.shared. StorybookDetailView queries the
     // registry; providers render KatagamiView widgets via KatagamiSwiftUIRenderer.
+    //
+    // KatagamiPrimitivePreviewBridge.registerAll() wires one provider per
+    // Katagami canonical primitive (28 total — atoms/layout/components/composite).
+    // Without this, clicking any primitive in the sidebar shows the orange
+    // "No preview registered for widgetKind: katagami.*" fallback.
     init() {
         CTechWidgetPreviewBridge.registerAll()
+        KatagamiPrimitivePreviewBridge.registerAll()
     }
 
     var body: some Scene {
