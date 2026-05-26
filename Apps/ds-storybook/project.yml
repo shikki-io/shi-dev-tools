@@ -1,0 +1,72 @@
+name: ShikkiDSStorybook
+options:
+  bundleIdPrefix: eu.fj-studios.shikki
+  deploymentTarget:
+    macOS: "14.0"
+  xcodeVersion: "16.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+packages:
+  Katagami:
+    path: /Users/jeoffrey/.shikki/workspaces/obyw-one/projects/shikki/packages/Katagami
+  katagami-player:
+    path: /Users/jeoffrey/.shikki/workspaces/obyw-one/projects/katagami-player
+  SMWidgets:
+    path: /Users/jeoffrey/.shikki/tmp/wt-ctech-W5-fix-2026-05-26/packages/SMWidgets
+
+settings:
+  base:
+    DEVELOPMENT_TEAM: SH7MZH647S
+    SWIFT_VERSION: "6.0"
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_HARDENED_RUNTIME: YES
+
+targets:
+  DSStorybookApp:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    info:
+      path: DSStorybookApp-Info.plist
+      properties:
+        CFBundleName: ds-storybook
+        CFBundleDisplayName: ds-storybook
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
+        NSPrincipalClass: NSApplication
+        NSHighResolutionCapable: true
+        NSSupportsAutomaticGraphicsSwitching: true
+        LSMinimumSystemVersion: "14.0"
+        LSApplicationCategoryType: developer-tools
+    entitlements:
+      path: DSStorybookApp.entitlements
+      properties:
+        com.apple.security.app-sandbox: false
+    settings:
+      base:
+        PRODUCT_NAME: ds-storybook
+        PRODUCT_BUNDLE_IDENTIFIER: eu.fj-studios.shikki.ds-storybook
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+    sources:
+      - path: Sources/DSStorybookApp
+        type: group
+      - path: Sources/DSStorybookKit
+        type: group
+    dependencies:
+      - package: Katagami
+        product: KatagamiSwiftUI
+      - package: Katagami
+        product: KatagamiCore
+      - package: SMWidgets
+        product: CTechWidgetPreviewBridge
+
+schemes:
+  DSStorybookApp:
+    build:
+      targets:
+        DSStorybookApp: all
+    run:
+      executable: DSStorybookApp
+      commandLineArguments:
+        "--catalog /tmp/c-tech-manifest.json": true
