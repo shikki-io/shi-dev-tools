@@ -9,6 +9,12 @@
 //   NP1-T06: Snapshot — Component tier sidebar row
 //   NP1-T07: Snapshot — Composite tier sidebar row
 //   NP1-T08: Snapshot — full catalog (28 primitives) render in StorybookBrowserView
+//
+// NP-5 test plan (codeSnippet forwarding fix):
+//   NP5-T01: catalogEntry() forwards codeSnippet — never nil for any primitive
+//   NP5-T02: Snapshot — Atom CodeBlockView shows snippet, not fallback (KatagamiText)
+//   NP5-T03: Snapshot — Layout CodeBlockView shows snippet, not fallback (KatagamiHStack)
+//   NP5-T04: Snapshot — Composite CodeBlockView shows snippet, not fallback (KatagamiShadowedCard)
 
 #if canImport(AppKit) && os(macOS)
 
@@ -143,6 +149,93 @@ struct PrimitiveCatalogTests {
 
         withSnapshotTesting(record: .missing) {
             assertSnapshot(of: nsView, as: .image(size: CGSize(width: 1200, height: 800)), named: "primitives-browser")
+        }
+    }
+
+    // MARK: NP5-T01: catalogEntry() forwards codeSnippet
+
+    @Test("NP5-T01: catalogEntry() forwards codeSnippet — non-nil for every primitive")
+    func catalogEntryForwardsCodeSnippet() {
+        for primitive in PrimitiveCatalog.all {
+            let entry = primitive.catalogEntry()
+            #expect(
+                entry.codeSnippet != nil,
+                "catalogEntry().codeSnippet is nil for \(primitive.id) — NP-5 fix not applied"
+            )
+            #expect(
+                entry.codeSnippet?.isEmpty == false,
+                "catalogEntry().codeSnippet is empty for \(primitive.id)"
+            )
+            // Ensure the fallback hint is NOT present in any forwarded snippet
+            let isFallback = entry.codeSnippet?.contains("No code snippet defined") ?? false
+            #expect(!isFallback, "Fallback hint found in snippet for \(primitive.id)")
+        }
+    }
+
+    // MARK: NP5-T02: Atom — CodeBlockView shows snippet (not fallback)
+
+    @MainActor
+    @Test("NP5-T02: snapshot — Atom CodeBlockView renders snippet for KatagamiText")
+    func atomCodeBlockSnippetSnapshot() throws {
+        let atom = PrimitiveCatalog.atoms.first!  // KatagamiText
+        let entry = atom.catalogEntry()
+        // entry.codeSnippet is non-nil after NP-5 fix; CodeBlockView must render it
+        let view = CodeBlockView(snippet: entry.codeSnippet, widgetKind: entry.widgetKind)
+            .padding(12)
+            .frame(width: 580, height: 100)
+            .preferredColorScheme(.dark)
+        let nsView = hostingView(view, width: 580, height: 100)
+
+        withSnapshotTesting(record: .missing) {
+            assertSnapshot(
+                of: nsView,
+                as: .image(size: CGSize(width: 580, height: 100)),
+                named: "np5-atom-codeblock"
+            )
+        }
+    }
+
+    // MARK: NP5-T03: Layout — CodeBlockView shows snippet (not fallback)
+
+    @MainActor
+    @Test("NP5-T03: snapshot — Layout CodeBlockView renders snippet for KatagamiHStack")
+    func layoutCodeBlockSnippetSnapshot() throws {
+        let layout = PrimitiveCatalog.layouts.first!  // KatagamiHStack
+        let entry = layout.catalogEntry()
+        let view = CodeBlockView(snippet: entry.codeSnippet, widgetKind: entry.widgetKind)
+            .padding(12)
+            .frame(width: 580, height: 130)
+            .preferredColorScheme(.dark)
+        let nsView = hostingView(view, width: 580, height: 130)
+
+        withSnapshotTesting(record: .missing) {
+            assertSnapshot(
+                of: nsView,
+                as: .image(size: CGSize(width: 580, height: 130)),
+                named: "np5-layout-codeblock"
+            )
+        }
+    }
+
+    // MARK: NP5-T04: Composite — CodeBlockView shows snippet (not fallback)
+
+    @MainActor
+    @Test("NP5-T04: snapshot — Composite CodeBlockView renders snippet for KatagamiShadowedCard")
+    func compositeCodeBlockSnippetSnapshot() throws {
+        let composite = PrimitiveCatalog.composites.first!  // KatagamiShadowedCard
+        let entry = composite.catalogEntry()
+        let view = CodeBlockView(snippet: entry.codeSnippet, widgetKind: entry.widgetKind)
+            .padding(12)
+            .frame(width: 580, height: 160)
+            .preferredColorScheme(.dark)
+        let nsView = hostingView(view, width: 580, height: 160)
+
+        withSnapshotTesting(record: .missing) {
+            assertSnapshot(
+                of: nsView,
+                as: .image(size: CGSize(width: 580, height: 160)),
+                named: "np5-composite-codeblock"
+            )
         }
     }
 }
