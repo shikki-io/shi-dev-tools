@@ -1,6 +1,6 @@
-// SMProductPreviewProvider.swift — CTechWidgetPreviewBridge
+// SMProductPreviewProvider.swift — CTechWidgetPreviewProviders
 //
-// Renders SMShoppableProductKatagami (W3) — covers widgetKind "product".
+// Renders SMShoppableProductKatagami (W3) via .swiftUI(theme:) — covers widgetKind "product".
 // One demo ShoppableProduct line item exercises the full shoppable layout.
 // The non-shoppable SMProductKatagami (W2) layout is also valid for this
 // widgetKind; we default to the richer shoppable shape for the demo.
@@ -38,8 +38,6 @@ public struct SMProductPreviewProvider: WidgetPreviewProvider {
             displaySize: .regular
         )
 
-        let renderer = KatagamiSwiftUIRenderer()
-        return (try? renderer.render(widget, theme: KatagamiThemePreset.kintsugi))
-            ?? AnyView(Text("SMProduct render failed").foregroundStyle(.orange))
+        return AnyView(widget.swiftUI(theme: KatagamiThemePreset.kintsugi))
     }
 }

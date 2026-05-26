@@ -1,6 +1,6 @@
-// SMPeoplePreviewProvider.swift — CTechWidgetPreviewBridge
+// SMPeoplePreviewProvider.swift — CTechWidgetPreviewProviders
 //
-// Renders SMPeopleKatagami (W1) through KatagamiSwiftUIRenderer.
+// Renders SMPeopleKatagami (W1) via .swiftUI(theme:).
 // Stub data: presenter name from CatalogEntry.displayName; role from
 // CatalogEntry.description (truncated). Falls back to static strings when
 // the entry carries no useful data.
@@ -22,8 +22,6 @@ public struct SMPeoplePreviewProvider: WidgetPreviewProvider {
             descriptionText: "Head of Product & Innovation",
             displaySize: .regular
         )
-        let renderer = KatagamiSwiftUIRenderer()
-        return (try? renderer.render(widget, theme: KatagamiThemePreset.kintsugi))
-            ?? AnyView(Text("SMPeople render failed").foregroundStyle(.orange))
+        return AnyView(widget.swiftUI(theme: KatagamiThemePreset.kintsugi))
     }
 }

@@ -1,6 +1,6 @@
-// SMEndcapPreviewProvider.swift — CTechWidgetPreviewBridge
+// SMEndcapPreviewProvider.swift — CTechWidgetPreviewProviders
 //
-// Renders SMEndcapKatagami (W5) through KatagamiSwiftUIRenderer.
+// Renders SMEndcapKatagami (W5) via .swiftUI(theme:).
 // Demo: 3 horizontal slots — covers the horizontal ScrollView path.
 
 import SwiftUI
@@ -27,9 +27,7 @@ public struct SMEndcapPreviewProvider: WidgetPreviewProvider {
             slots: demoSlots
         )
 
-        let renderer = KatagamiSwiftUIRenderer()
-        return (try? renderer.render(widget, theme: KatagamiThemePreset.kintsugi))
-            ?? AnyView(Text("SMEndcap render failed").foregroundStyle(.orange))
+        return AnyView(widget.swiftUI(theme: KatagamiThemePreset.kintsugi))
     }
 
     private func makeSlot(position: Int, title: String, price: Double, promo: String?) -> Slot {

@@ -3,7 +3,7 @@
 // NP-4: Preview providers for all 28 Katagami canonical primitives.
 //
 // Each provider builds a representative KatagamiView instance and renders it
-// via KatagamiSwiftUIRenderer. On render failure the provider falls back to a
+// via .swiftUI(theme:). On render failure the provider falls back to a
 // native SwiftUI view so the detail pane never shows the orange "No preview
 // registered" warning for any katagami.* widgetKind.
 //
@@ -15,8 +15,8 @@
 //   Components (4): asyncimage, badge, overlaymarker, qrmarker
 //   Composite (1):  shadowedcard
 //
-// Registration: call `KatagamiPrimitivePreviewBridge.registerAll()` in
-// DSStorybookApp.init() alongside CTechWidgetPreviewBridge.registerAll().
+// Registration: call `KatagamiPrimitivePreviewProviders.registerAll()` in
+// DSStorybookApp.init() alongside CTechWidgetPreviewProviders.registerAll().
 //
 // Import note: DSStorybookKit already declares KatagamiSwiftUI / KatagamiCore
 // as target dependencies, so no Package.swift change is required.
@@ -25,9 +25,9 @@ import SwiftUI
 import KatagamiCore
 import KatagamiSwiftUI
 
-// MARK: - KatagamiPrimitivePreviewBridge
+// MARK: - KatagamiPrimitivePreviewProviders
 
-public enum KatagamiPrimitivePreviewBridge {
+public enum KatagamiPrimitivePreviewProviders {
 
     /// Register one WidgetPreviewProvider per Katagami primitive widgetKind.
     /// Safe to call multiple times — repeated registration overwrites the
@@ -75,15 +75,13 @@ public enum KatagamiPrimitivePreviewBridge {
 
 // MARK: - Render helper
 
-/// Render a KatagamiView or fall back to the provided SwiftUI view.
+/// Render a KatagamiView via .swiftUI(theme:) or fall back to the provided SwiftUI view.
 @MainActor
 private func renderOrFallback<V: KatagamiView, F: View>(
     _ widget: V,
     fallback: F
 ) -> AnyView {
-    let renderer = KatagamiSwiftUIRenderer()
-    return (try? renderer.render(widget, theme: KatagamiThemePreset.kintsugi))
-        ?? AnyView(fallback)
+    AnyView(widget.swiftUI(theme: KatagamiThemePreset.kintsugi))
 }
 
 // MARK: - Atom providers

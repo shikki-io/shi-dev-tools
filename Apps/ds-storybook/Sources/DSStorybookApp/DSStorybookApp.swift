@@ -20,7 +20,7 @@
 // swift run local only — no bundle-id needed for this slice.
 
 import AppKit
-import CTechWidgetPreviewBridge
+import CTechWidgetPreviewProviders
 import DSStorybookKit
 import Foundation
 import SwiftUI
@@ -45,12 +45,12 @@ struct DSStorybookSwiftUIApp: App {
 
     // MARK: - Init — register widget preview providers before any view loads.
     //
-    // CTechWidgetPreviewBridge.registerAll() wires one WidgetPreviewProvider per
+    // CTechWidgetPreviewProviders.registerAll() wires one WidgetPreviewProvider per
     // c-tech widgetKind ("people", "product", "qr", "endcap", "program_guide",
     // "cart") into WidgetPreviewRegistry.shared. StorybookDetailView queries the
-    // registry; providers render KatagamiView widgets via KatagamiSwiftUIRenderer.
+    // registry; providers render KatagamiView widgets via .swiftUI(theme:).
     //
-    // KatagamiPrimitivePreviewBridge.registerAll() wires one provider per
+    // KatagamiPrimitivePreviewProviders.registerAll() wires one provider per
     // Katagami canonical primitive (28 total — atoms/layout/components/composite).
     // Without this, clicking any primitive in the sidebar shows the orange
     // "No preview registered for widgetKind: katagami.*" fallback.
@@ -60,8 +60,8 @@ struct DSStorybookSwiftUIApp: App {
     // KatagamiThemePreset.sigma (sgCrimson / sgGold / sgInk brand palette).
     // Gated behind canImport so ds-storybook builds when sigma is absent.
     init() {
-        CTechWidgetPreviewBridge.registerAll()
-        KatagamiPrimitivePreviewBridge.registerAll()
+        CTechWidgetPreviewProviders.registerAll()
+        KatagamiPrimitivePreviewProviders.registerAll()
         #if canImport(SigmaWidgetPreviewBridge)
         SigmaWidgetPreviewBridge.registerAll()
         #endif

@@ -1,6 +1,6 @@
-// SMProgramGuidePreviewProvider.swift — CTechWidgetPreviewBridge
+// SMProgramGuidePreviewProvider.swift — CTechWidgetPreviewProviders
 //
-// Renders SMProgramGuideKatagami (W6) through KatagamiSwiftUIRenderer.
+// Renders SMProgramGuideKatagami (W6) via .swiftUI(theme:).
 // Demo: 3 program rows with mixed badge states (live + shoppable, premiere,
 // rerun) to exercise all KatagamiBadge variants.
 
@@ -87,8 +87,6 @@ public struct SMProgramGuidePreviewProvider: WidgetPreviewProvider {
         )
 
         let widget = SMProgramGuideKatagami(response: response)
-        let renderer = KatagamiSwiftUIRenderer()
-        return (try? renderer.render(widget, theme: KatagamiThemePreset.kintsugi))
-            ?? AnyView(Text("SMProgramGuide render failed").foregroundStyle(.orange))
+        return AnyView(widget.swiftUI(theme: KatagamiThemePreset.kintsugi))
     }
 }
