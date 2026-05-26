@@ -10,6 +10,7 @@
 //
 // swift run local only — no bundle-id needed for this slice.
 
+import AppKit
 import CTechWidgetPreviewBridge
 import DSStorybookKit
 import Foundation
@@ -39,6 +40,28 @@ struct DSStorybookSwiftUIApp: App {
             StorybookBrowserView(manifest: Self.parsedManifest)
         }
         .windowStyle(.automatic)
+        // macOS 14+: request a comfortable canvas that shows the full widget
+        // chrome without clipping. Operator default was ~580×430 which cut
+        // off card shadows and avatar overlays.
+        .defaultSize(width: 1280, height: 800)
+        .commands {
+            CommandGroup(after: .windowArrangement) {
+                Button("Reset Window Size") {
+                    // Cmd+0 — return window to the 1280×800 default.
+                    // NSWindow resize is handled by NSApp.keyWindow on macOS 14+.
+                    if let window = NSApp.keyWindow {
+                        let frame = NSRect(
+                            x: window.frame.origin.x,
+                            y: window.frame.origin.y,
+                            width: 1280,
+                            height: 800
+                        )
+                        window.setFrame(frame, display: true, animate: true)
+                    }
+                }
+                .keyboardShortcut("0", modifiers: .command)
+            }
+        }
     }
 
     // MARK: - Argument resolution
