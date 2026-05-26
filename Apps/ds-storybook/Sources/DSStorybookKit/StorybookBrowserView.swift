@@ -11,7 +11,7 @@
 // Q3: renders ONLY the catalog's brand (sigma by default).
 // NP-3: CodeBlockView embedded in StorybookDetailView below Preview,
 // above Description. Renders entry.codeSnippet or auto-derived fallback.
-// NP-4: KatagamiPrimitivePreviewBridge wired into app init — all 28
+// NP-4: KatagamiPrimitivePreviewProviders wired into app init — all 28
 // primitives show real content, not orange fallback.
 //
 // UX Upgrade:

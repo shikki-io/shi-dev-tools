@@ -1,8 +1,8 @@
-// CTechWidgetPreviewBridgeTests.swift — CTechWidgetPreviewBridgeTests
+// CTechWidgetPreviewProvidersTests.swift — CTechWidgetPreviewProvidersTests
 //
 // Smoke tests: each provider must return a non-empty AnyView for a stub
 // CatalogEntry. Tests verify the provider is registered and that
-// CTechWidgetPreviewBridge.registerAll() wires all 6 widgetKind values.
+// CTechWidgetPreviewProviders.registerAll() wires all 6 widgetKind values.
 //
 // Acceptance per spec:
 //   - registerAll() registers providers for all 6 widgetKind values
@@ -10,7 +10,7 @@
 
 import Testing
 import SwiftUI
-@testable import CTechWidgetPreviewBridge
+@testable import CTechWidgetPreviewProviders
 import DSStorybookKit
 
 // MARK: - Helpers
@@ -29,15 +29,14 @@ private func stubEntry(id: String, widgetKind: String, displayName: String) -> C
 
 // MARK: - Registration tests
 
-@Suite("CTechWidgetPreviewBridge registration")
-struct CTechWidgetPreviewBridgeRegistrationTests {
+@Suite("CTechWidgetPreviewProviders registration")
+struct CTechWidgetPreviewProvidersRegistrationTests {
 
     @Test("registerAll() wires 6 widgetKind entries")
     @MainActor
     func registerAllWiresSixKinds() {
-        // Use a fresh isolated registry for this test.
         let registry = WidgetPreviewRegistry.shared
-        CTechWidgetPreviewBridge.registerAll()
+        CTechWidgetPreviewProviders.registerAll()
 
         let expectedKinds = ["people", "product", "qr", "endcap", "program_guide", "cart"]
         for kind in expectedKinds {
@@ -56,7 +55,6 @@ struct ProviderSmokeTests {
     func peopleProviderSmoke() {
         let provider = SMPeoplePreviewProvider()
         let entry = stubEntry(id: "SMPeople", widgetKind: "people", displayName: "People")
-        // Should not crash; result is an opaque AnyView — existence check is sufficient.
         let view = provider.previewView(for: entry)
         _ = view
         #expect(Bool(true))

@@ -17,7 +17,7 @@ import Testing
 import AppKit
 import SwiftUI
 import SnapshotTesting
-import CTechWidgetPreviewBridge
+import CTechWidgetPreviewProviders
 #endif
 
 // MARK: - Helpers (shared)
@@ -293,8 +293,8 @@ struct StorybookUXSnapshotTests {
                         primitives: "KatagamiShadowedCard,KatagamiHStack,KatagamiVStack,KatagamiText",
                         wave: "1", ssimStatus: "pendingImpl")
         ])
-        CTechWidgetPreviewBridge.registerAll()
-        KatagamiPrimitivePreviewBridge.registerAll()
+        CTechWidgetPreviewProviders.registerAll()
+        KatagamiPrimitivePreviewProviders.registerAll()
         let view = StorybookBrowserView(manifest: manifest, userCatalog: UserWidgetCatalog())
         let nsView = hostingView(view, width: 1200, height: 800)
 
@@ -306,8 +306,8 @@ struct StorybookUXSnapshotTests {
     // TP-UX-SS-03: Used-in cross-reference section at bottom of detail view
     @Test("TP-UX-SS-03: Used-In section renders for katagami.text")
     func usedInSectionSnapshot() throws {
-        CTechWidgetPreviewBridge.registerAll()
-        KatagamiPrimitivePreviewBridge.registerAll()
+        CTechWidgetPreviewProviders.registerAll()
+        KatagamiPrimitivePreviewProviders.registerAll()
 
         let allEntries: [CatalogEntry] = [
             CatalogEntry(id: "KatagamiText", widgetKind: "katagami.text", displayName: "Text",

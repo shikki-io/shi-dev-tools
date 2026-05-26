@@ -1,6 +1,6 @@
-// SMCartPreviewProvider.swift — CTechWidgetPreviewBridge
+// SMCartPreviewProvider.swift — CTechWidgetPreviewProviders
 //
-// Renders SMCartKatagami (W7) through KatagamiSwiftUIRenderer.
+// Renders SMCartKatagami (W7) via .swiftUI(theme:).
 //
 // KatagamiDrawer: when isOpen = true the renderer renders the inner content
 // directly (the drawer chrome — sheet/overlay — is the host's responsibility
@@ -51,8 +51,6 @@ public struct SMCartPreviewProvider: WidgetPreviewProvider {
         )
 
         let widget = SMCartKatagami(snapshot: snapshot, isOpen: true)
-        let renderer = KatagamiSwiftUIRenderer()
-        return (try? renderer.render(widget, theme: KatagamiThemePreset.kintsugi))
-            ?? AnyView(Text("SMCart render failed").foregroundStyle(.orange))
+        return AnyView(widget.swiftUI(theme: KatagamiThemePreset.kintsugi))
     }
 }

@@ -7,7 +7,7 @@
 //   NP4-T04: Composite tier — KatagamiShadowedCard provider renders non-fallback view
 //
 // Each test:
-//   (a) Calls KatagamiPrimitivePreviewBridge.registerAll()
+//   (a) Calls KatagamiPrimitivePreviewProviders.registerAll()
 //   (b) Resolves the registered provider
 //   (c) Asserts the result is not the orange "No preview registered" fallback
 //   (d) Takes a snapshot golden
@@ -56,7 +56,7 @@ struct KatagamiPrimitiveBridgeTests {
     @MainActor
     @Test("NP4-T01: snapshot — KatagamiText provider renders non-fallback (Atom tier)")
     func atomTextSnapshot() throws {
-        KatagamiPrimitivePreviewBridge.registerAll()
+        KatagamiPrimitivePreviewProviders.registerAll()
         let registry = WidgetPreviewRegistry.shared
         defer { registry.reset() }
 
@@ -78,7 +78,7 @@ struct KatagamiPrimitiveBridgeTests {
     @MainActor
     @Test("NP4-T02: snapshot — KatagamiHStack provider renders non-fallback (Layout tier)")
     func layoutHStackSnapshot() throws {
-        KatagamiPrimitivePreviewBridge.registerAll()
+        KatagamiPrimitivePreviewProviders.registerAll()
         let registry = WidgetPreviewRegistry.shared
         defer { registry.reset() }
 
@@ -100,7 +100,7 @@ struct KatagamiPrimitiveBridgeTests {
     @MainActor
     @Test("NP4-T03: snapshot — KatagamiBadge provider renders non-fallback (Component tier)")
     func componentBadgeSnapshot() throws {
-        KatagamiPrimitivePreviewBridge.registerAll()
+        KatagamiPrimitivePreviewProviders.registerAll()
         let registry = WidgetPreviewRegistry.shared
         defer { registry.reset() }
 
@@ -122,7 +122,7 @@ struct KatagamiPrimitiveBridgeTests {
     @MainActor
     @Test("NP4-T04: snapshot — KatagamiShadowedCard provider renders non-fallback (Composite tier)")
     func compositeShadowedCardSnapshot() throws {
-        KatagamiPrimitivePreviewBridge.registerAll()
+        KatagamiPrimitivePreviewProviders.registerAll()
         let registry = WidgetPreviewRegistry.shared
         defer { registry.reset() }
 
@@ -145,7 +145,7 @@ struct KatagamiPrimitiveBridgeTests {
     func allProvidersRegistered() {
         let registry = WidgetPreviewRegistry.shared
         registry.reset()
-        KatagamiPrimitivePreviewBridge.registerAll()
+        KatagamiPrimitivePreviewProviders.registerAll()
         defer { registry.reset() }
 
         let expected: [String] = [

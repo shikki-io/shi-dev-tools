@@ -1,11 +1,11 @@
-// CTechWidgetPreviewBridge.swift
+// CTechWidgetPreviewProviders.swift
 //
 // Top-level registration entry point.
 //
-// Call `CTechWidgetPreviewBridge.registerAll()` in ds-storybook's App.init()
+// Call `CTechWidgetPreviewProviders.registerAll()` in ds-storybook's App.init()
 // before any view loads. Each provider materialises a canonical KatagamiView
-// from stub data and renders it through KatagamiSwiftUIRenderer to produce an
-// AnyView — wiring live render into the WidgetPreviewRegistry for every
+// from stub data and renders it via .swiftUI(theme:) to produce a SwiftUI
+// view — wiring live render into the WidgetPreviewRegistry for every
 // widgetKind in the c-tech catalog.
 //
 // widgetKind mapping (must match SMWidgetsKatagamiManifest.emitJSON output):
@@ -24,7 +24,7 @@
 
 import DSStorybookKit
 
-public enum CTechWidgetPreviewBridge {
+public enum CTechWidgetPreviewProviders {
     /// Register all c-tech widget preview providers into the shared registry.
     /// Safe to call multiple times — repeated registration overwrites the
     /// previous provider for the same widgetKind (idempotent).

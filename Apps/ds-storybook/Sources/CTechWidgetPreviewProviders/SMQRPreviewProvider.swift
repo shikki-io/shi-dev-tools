@@ -1,6 +1,6 @@
-// SMQRPreviewProvider.swift — CTechWidgetPreviewBridge
+// SMQRPreviewProvider.swift — CTechWidgetPreviewProviders
 //
-// Renders SMQRKatagami (W4) through KatagamiSwiftUIRenderer.
+// Renders SMQRKatagami (W4) via .swiftUI(theme:).
 //
 // Q-CT2: SMQRKatagami now uses KatagamiQRCode (AnyQRMarker) as its primary
 // node. KatagamiSwiftUIRenderer bridges AnyQRMarker to CoreImage on macOS 14+,
@@ -31,8 +31,6 @@ public struct SMQRPreviewProvider: WidgetPreviewProvider {
             showCaption: true
         )
         let widget = SMQRKatagami(config: config)
-        let renderer = KatagamiSwiftUIRenderer()
-        return (try? renderer.render(widget, theme: KatagamiThemePreset.kintsugi))
-            ?? AnyView(Text("SMQR render failed").foregroundStyle(.orange))
+        return AnyView(widget.swiftUI(theme: KatagamiThemePreset.kintsugi))
     }
 }

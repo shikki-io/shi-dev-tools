@@ -22,7 +22,7 @@ import SwiftUI
 import Testing
 import SnapshotTesting
 @testable import DSStorybookKit
-import CTechWidgetPreviewBridge
+import CTechWidgetPreviewProviders
 
 // MARK: - Helpers
 
@@ -158,18 +158,18 @@ struct StorybookSnapshotTests {
         }
     }
 
-    // MARK: TP-DSS-S06: live-render proof (CTechWidgetPreviewBridge registered)
+    // MARK: TP-DSS-S06: live-render proof (CTechWidgetPreviewProviders registered)
     //
-    // Calls CTechWidgetPreviewBridge.registerAll() then renders the People widget
+    // Calls CTechWidgetPreviewProviders.registerAll() then renders the People widget
     // via the registered provider. Golden MUST show the KatagamiView composite —
     // no orange "No preview registered" text may appear in this snapshot.
 
-    @Test("TP-DSS-S06: live render — People widget via CTechWidgetPreviewBridge (no orange fallback)")
+    @Test("TP-DSS-S06: live render — People widget via CTechWidgetPreviewProviders (no orange fallback)")
     func liveRenderPeopleSnapshot() throws {
         let registry = WidgetPreviewRegistry.shared
 
-        // Wire bridge providers into the shared registry.
-        CTechWidgetPreviewBridge.registerAll()
+        // Wire providers into the shared registry.
+        CTechWidgetPreviewProviders.registerAll()
         // Always reset after this test to prevent registry state leaking into other tests.
         defer { registry.reset() }
 

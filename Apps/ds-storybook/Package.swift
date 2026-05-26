@@ -6,7 +6,7 @@ import PackageDescription
 //
 // W5.0 fast-path: Browse mode only (sidebar + detail render).
 // Reads a c-tech CatalogManifest JSON (emitted by SMWidgetsKatagamiManifest.emitJSON())
-// and renders each widget via KatagamiSwiftUIRenderer.
+// and renders each widget via .swiftUI(theme:).
 //
 // Usage:
 //   swift run --package-path Apps/ds-storybook ds-storybook \
@@ -60,7 +60,7 @@ let package = Package(
         ),
     ],
     targets: [
-        // Library: catalog model + SwiftUI browse view.
+        // Library: catalog model + SwiftUI browse view + KatagamiPrimitivePreviewProviders.
         .target(
             name: "DSStorybookKit",
             dependencies: [
@@ -69,11 +69,13 @@ let package = Package(
             ],
             path: "Sources/DSStorybookKit"
         ),
-        // CTechWidgetPreviewBridge — live-render WidgetPreviewProvider implementations
+        // CTechWidgetPreviewProviders — live-render WidgetPreviewProvider implementations
         // for all c-tech widgets. Moved from sm-widgets-native/packages/SMWidgets here
         // to break the circular dep (SMWidgets → DSStorybookKit → ds-storybook).
+        // Renamed from CTechWidgetPreviewBridge (2026-05-26) — providers use .swiftUI(theme:),
+        // no renderer instance management at call-site.
         .target(
-            name: "CTechWidgetPreviewBridge",
+            name: "CTechWidgetPreviewProviders",
             dependencies: [
                 "DSStorybookKit",
                 .product(name: "KatagamiCore", package: "Katagami"),
@@ -81,14 +83,14 @@ let package = Package(
                 .product(name: "SMWidgetsKatagami", package: "sm-widgets-native"),
                 .product(name: "SMWidgetsCore", package: "sm-widgets-native"),
             ],
-            path: "Sources/CTechWidgetPreviewBridge"
+            path: "Sources/CTechWidgetPreviewProviders"
         ),
         // Executable: CLI entry point (--catalog flag, arguments parsed manually).
         .executableTarget(
             name: "DSStorybookApp",
             dependencies: [
                 "DSStorybookKit",
-                "CTechWidgetPreviewBridge",
+                "CTechWidgetPreviewProviders",
                 .product(name: "KatagamiSwiftUI", package: "Katagami"),
                 .product(name: "KatagamiCore", package: "Katagami"),
                 // SigmaWidgetPreviewBridge — sigma catalog live renders.
@@ -102,18 +104,18 @@ let package = Package(
             dependencies: [
                 "DSStorybookKit",
                 .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
-                // Live-render proof: CTechWidgetPreviewBridge.registerAll() in TP-DSS-S06.
-                "CTechWidgetPreviewBridge",
+                // Live-render proof: CTechWidgetPreviewProviders.registerAll() in TP-DSS-S06.
+                "CTechWidgetPreviewProviders",
             ],
             path: "Tests/DSStorybookKitTests"
         ),
         .testTarget(
-            name: "CTechWidgetPreviewBridgeTests",
+            name: "CTechWidgetPreviewProvidersTests",
             dependencies: [
-                "CTechWidgetPreviewBridge",
+                "CTechWidgetPreviewProviders",
                 "DSStorybookKit",
             ],
-            path: "Tests/CTechWidgetPreviewBridgeTests"
+            path: "Tests/CTechWidgetPreviewProvidersTests"
         ),
     ]
 )
