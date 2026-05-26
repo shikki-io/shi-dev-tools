@@ -12,6 +12,12 @@ packages:
     path: /Users/jeoffrey/.shikki/workspaces/obyw-one/projects/shikki/packages/Katagami
   katagami-player:
     path: /Users/jeoffrey/.shikki/workspaces/obyw-one/projects/katagami-player
+  # ds-storybook self-reference — ensures DSStorybookKit resolves to ONE SPM module
+  # instance shared by both the app target and CTechWidgetPreviewBridge.
+  # Without this, xcodegen compiled Sources/DSStorybookKit directly into DSStorybookApp
+  # AND CTechWidgetPreviewBridge linked its own SPM copy → two WidgetPreviewRegistry.shared.
+  ds-storybook:
+    path: /Users/jeoffrey/.shikki/tmp/wt-fix-dual-singleton-2026-05-26/Apps/ds-storybook
   SMWidgets:
     path: /Users/jeoffrey/.shikki/tmp/wt-ctech-W5-fix-2026-05-26/packages/SMWidgets
 
@@ -51,9 +57,9 @@ targets:
     sources:
       - path: Sources/DSStorybookApp
         type: group
-      - path: Sources/DSStorybookKit
-        type: group
     dependencies:
+      - package: ds-storybook
+        product: DSStorybookKit
       - package: Katagami
         product: KatagamiSwiftUI
       - package: Katagami
