@@ -1,4 +1,5 @@
 // SMCartPreviewProvider.swift — CTechWidgetPreviewProviders
+// kagami-scope: exempt
 //
 // Renders SMCartKatagami (W7) via .swiftUI(theme:).
 //
@@ -51,6 +52,8 @@ public struct SMCartPreviewProvider: WidgetPreviewProvider {
         )
 
         let widget = SMCartKatagami(snapshot: snapshot, isOpen: true)
-        return AnyView(widget.swiftUI(theme: KatagamiThemePreset.kintsugi))
+        let renderer = KatagamiSwiftUIRenderer()
+        return (try? renderer.render(widget, theme: KatagamiThemePreset.kintsugi))
+            ?? AnyView(Text("SMCart render failed").foregroundStyle(.orange))
     }
 }

@@ -1,4 +1,5 @@
 // KatagamiPrimitivePreviewBridge.swift — DSStorybookKit
+// kagami-scope: exempt
 //
 // NP-4: Preview providers for all 28 Katagami canonical primitives.
 //
@@ -75,13 +76,15 @@ public enum KatagamiPrimitivePreviewProviders {
 
 // MARK: - Render helper
 
-/// Render a KatagamiView via .swiftUI(theme:) or fall back to the provided SwiftUI view.
+/// Render a KatagamiView via KatagamiSwiftUIRenderer or fall back to the provided SwiftUI view.
 @MainActor
 private func renderOrFallback<V: KatagamiView, F: View>(
     _ widget: V,
     fallback: F
 ) -> AnyView {
-    AnyView(widget.swiftUI(theme: KatagamiThemePreset.kintsugi))
+    let renderer = KatagamiSwiftUIRenderer()
+    return (try? renderer.render(widget, theme: KatagamiThemePreset.kintsugi))
+        ?? AnyView(fallback)
 }
 
 // MARK: - Atom providers

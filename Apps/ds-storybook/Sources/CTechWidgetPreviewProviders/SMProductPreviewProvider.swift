@@ -1,4 +1,5 @@
 // SMProductPreviewProvider.swift — CTechWidgetPreviewProviders
+// kagami-scope: exempt
 //
 // Renders SMShoppableProductKatagami (W3) via .swiftUI(theme:) — covers widgetKind "product".
 // One demo ShoppableProduct line item exercises the full shoppable layout.
@@ -38,6 +39,8 @@ public struct SMProductPreviewProvider: WidgetPreviewProvider {
             displaySize: .regular
         )
 
-        return AnyView(widget.swiftUI(theme: KatagamiThemePreset.kintsugi))
+        let renderer = KatagamiSwiftUIRenderer()
+        return (try? renderer.render(widget, theme: KatagamiThemePreset.kintsugi))
+            ?? AnyView(Text("SMShoppableProduct render failed").foregroundStyle(.orange))
     }
 }

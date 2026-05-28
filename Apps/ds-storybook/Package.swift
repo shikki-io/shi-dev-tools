@@ -1,4 +1,5 @@
 // swift-tools-version: 6.0
+// kagami-scope: exempt
 
 import PackageDescription
 
@@ -53,8 +54,8 @@ let package = Package(
         // SigmaWidgetPreviewBridge — live sigma catalog render for ds-storybook.
         // 16 WidgetPreviewProvider implementations (9 molecules + 3 layout + 4 surfaces)
         // rendered with KatagamiThemePreset.sigma (sgCrimson / sgGold / sgInk brand palette).
-        // Points to the develop branch of sigma-analytics web/app/sources.
         // Package identity = "sources" (SPM uses directory name for file-system deps).
+        // Requires sigma-analytics working tree to be on develop (has correct Package.swift paths).
         .package(
             path: "/Users/jeoffrey/.shikki/workspaces/fj-studio/projects/sigma-analytics/web/app/sources"
         ),

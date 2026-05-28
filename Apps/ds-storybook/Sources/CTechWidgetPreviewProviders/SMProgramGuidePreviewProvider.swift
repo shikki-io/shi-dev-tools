@@ -1,4 +1,5 @@
 // SMProgramGuidePreviewProvider.swift — CTechWidgetPreviewProviders
+// kagami-scope: exempt
 //
 // Renders SMProgramGuideKatagami (W6) via .swiftUI(theme:).
 // Demo: 3 program rows with mixed badge states (live + shoppable, premiere,
@@ -87,6 +88,8 @@ public struct SMProgramGuidePreviewProvider: WidgetPreviewProvider {
         )
 
         let widget = SMProgramGuideKatagami(response: response)
-        return AnyView(widget.swiftUI(theme: KatagamiThemePreset.kintsugi))
+        let renderer = KatagamiSwiftUIRenderer()
+        return (try? renderer.render(widget, theme: KatagamiThemePreset.kintsugi))
+            ?? AnyView(Text("SMProgramGuide render failed").foregroundStyle(.orange))
     }
 }

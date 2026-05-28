@@ -1,4 +1,5 @@
 // SMEndcapPreviewProvider.swift — CTechWidgetPreviewProviders
+// kagami-scope: exempt
 //
 // Renders SMEndcapKatagami (W5) via .swiftUI(theme:).
 // Demo: 3 horizontal slots — covers the horizontal ScrollView path.
@@ -27,7 +28,9 @@ public struct SMEndcapPreviewProvider: WidgetPreviewProvider {
             slots: demoSlots
         )
 
-        return AnyView(widget.swiftUI(theme: KatagamiThemePreset.kintsugi))
+        let renderer = KatagamiSwiftUIRenderer()
+        return (try? renderer.render(widget, theme: KatagamiThemePreset.kintsugi))
+            ?? AnyView(Text("SMEndcap render failed").foregroundStyle(.orange))
     }
 
     private func makeSlot(position: Int, title: String, price: Double, promo: String?) -> Slot {

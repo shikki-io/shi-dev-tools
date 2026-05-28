@@ -1,4 +1,5 @@
 // SMQRPreviewProvider.swift — CTechWidgetPreviewProviders
+// kagami-scope: exempt
 //
 // Renders SMQRKatagami (W4) via .swiftUI(theme:).
 //
@@ -31,6 +32,8 @@ public struct SMQRPreviewProvider: WidgetPreviewProvider {
             showCaption: true
         )
         let widget = SMQRKatagami(config: config)
-        return AnyView(widget.swiftUI(theme: KatagamiThemePreset.kintsugi))
+        let renderer = KatagamiSwiftUIRenderer()
+        return (try? renderer.render(widget, theme: KatagamiThemePreset.kintsugi))
+            ?? AnyView(Text("SMQR render failed").foregroundStyle(.orange))
     }
 }
