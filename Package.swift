@@ -31,7 +31,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/FJ-Studios/shi-design.git", branch: "develop"),
         .package(url: "https://github.com/FJ-Studios/shi-qa.git", branch: "develop"),
-        .package(url: "https://github.com/FJ-Studios/shi-image-io.git", branch: "main"),
+        .package(url: "https://github.com/FJ-Studios/shi-image-io.git", from: "0.1.0"),
     ],
     targets: [
         // ShiDesign umbrella — thin pass-through to shi-design products.

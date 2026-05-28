@@ -1,0 +1,51 @@
+{
+  "originHash" : "ac78c8b8a3a62e0456860592d7e32de5a66458e8fc81a1e300dda0709a13ead9",
+  "pins" : [
+    {
+      "identity" : "corekit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FJ-Studios/CoreKit.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "55c7eaab259f89dffe3e49b1c076d909decd022d"
+      }
+    },
+    {
+      "identity" : "shi-design",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FJ-Studios/shi-design.git",
+      "state" : {
+        "branch" : "develop",
+        "revision" : "e5df364456fc9e5d5f3116416102de1c59529b8a"
+      }
+    },
+    {
+      "identity" : "shi-image-io",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FJ-Studios/shi-image-io.git",
+      "state" : {
+        "revision" : "d7dde804507ffa94d54ee3caabb0dd6ff642ed0e",
+        "version" : "0.1.0"
+      }
+    },
+    {
+      "identity" : "shi-qa",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FJ-Studios/shi-qa.git",
+      "state" : {
+        "branch" : "develop",
+        "revision" : "0c4f2a584bc1147f374b3c2fe3723a2c4a306679"
+      }
+    },
+    {
+      "identity" : "swift-argument-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-argument-parser.git",
+      "state" : {
+        "revision" : "5e0406d68a4937f21ae5f670b8f89dad1d156a1c",
+        "version" : "1.8.0"
+      }
+    }
+  ],
+  "version" : 3
+}
