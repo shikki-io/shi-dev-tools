@@ -1,4 +1,5 @@
 // DSStorybookApp.swift — ds-storybook executable entry point.
+// kagami-scope: exempt  — App entry point; UI smoke tested via swift run, not unit tests.
 //
 // W5.0a: Bootstrap SPM app target — NavigationSplitView on macOS 14 / iPadOS 17.
 // W5.0b: --catalog flag — decodes CatalogManifest JSON, dumps entry count.
@@ -20,10 +21,12 @@
 // swift run local only — no bundle-id needed for this slice.
 
 import AppKit
-import CTechWidgetPreviewProviders
 import DSStorybookKit
 import Foundation
 import SwiftUI
+// TODO(hop-f): Re-enable CTechWidgetPreviewProviders once sm-widgets-native migrates from
+// shikki Katagami DSL API to shi-design ViewNode API.
+// import CTechWidgetPreviewProviders
 #if canImport(SigmaWidgetPreviewBridge)
 import SigmaWidgetPreviewBridge
 #endif
@@ -60,8 +63,14 @@ struct DSStorybookSwiftUIApp: App {
     // KatagamiThemePreset.sigma (sgCrimson / sgGold / sgInk brand palette).
     // Gated behind canImport so ds-storybook builds when sigma is absent.
     init() {
-        CTechWidgetPreviewProviders.registerAll()
+        // 1. Register fallback native SwiftUI providers for all 28 primitives.
         KatagamiPrimitivePreviewProviders.registerAll()
+        // 2. Override the 8 canonical atoms with shi-design's authoritative bodies (U-A).
+        KagamiStorybookCanonicalBridge.registerAll()
+        // TODO(hop-f): CTechWidgetPreviewProviders.registerAll() — re-enable after
+        // sm-widgets-native migrates to shi-design ViewNode API. C-tech widgets show
+        // orange "No provider registered" fallback until then.
+        // CTechWidgetPreviewProviders.registerAll()
         #if canImport(SigmaWidgetPreviewBridge)
         SigmaWidgetPreviewBridge.registerAll()
         #endif
