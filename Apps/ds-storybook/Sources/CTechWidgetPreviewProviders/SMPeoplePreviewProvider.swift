@@ -1,10 +1,11 @@
 // SMPeoplePreviewProvider.swift — CTechWidgetPreviewProviders
 // kagami-scope: exempt
 //
-// Renders SMPeopleKatagami (W1) via .swiftUI(theme:).
-// Stub data: presenter name from CatalogEntry.displayName; role from
-// CatalogEntry.description (truncated). Falls back to static strings when
-// the entry carries no useful data.
+// Renders SMPeopleKatagami (W1) via SwiftUIRenderer.renderView(_:context:).
+// Hop α (2026-05-30): migrated from KatagamiSwiftUIRenderer / KatagamiThemePreset
+// to shi-design's SwiftUIRenderer API.
+//
+// Stub data: presenter name + role hardcoded for storybook preview.
 
 import SwiftUI
 import KatagamiCore
@@ -23,8 +24,7 @@ public struct SMPeoplePreviewProvider: WidgetPreviewProvider {
             descriptionText: "Head of Product & Innovation",
             displaySize: .regular
         )
-        let renderer = KatagamiSwiftUIRenderer()
-        return (try? renderer.render(widget, theme: KatagamiThemePreset.kintsugi))
-            ?? AnyView(Text("SMPeople render failed").foregroundStyle(.orange))
+        let renderer = SwiftUIRenderer()
+        return renderer.renderView(widget, context: RenderContext(target: .swiftUI))
     }
 }

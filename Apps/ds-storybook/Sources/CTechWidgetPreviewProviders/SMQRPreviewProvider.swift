@@ -1,18 +1,14 @@
 // SMQRPreviewProvider.swift — CTechWidgetPreviewProviders
 // kagami-scope: exempt
 //
-// Renders SMQRKatagami (W4) via .swiftUI(theme:).
+// Renders SMQRKatagami (W4) via SwiftUIRenderer.renderView(_:context:).
+// Hop α (2026-05-30): migrated from KatagamiSwiftUIRenderer / KatagamiThemePreset
+// to shi-design's SwiftUIRenderer API.
 //
-// Q-CT2: SMQRKatagami now uses KatagamiQRCode (AnyQRMarker) as its primary
-// node. KatagamiSwiftUIRenderer bridges AnyQRMarker to CoreImage on macOS 14+,
-// so the actual QR bitmap SHOULD render without an EscapeHatch. The fallback
-// prose ("QR code: <deeplink>") renders if the renderer does not yet implement
-// the AnyQRMarker bridge for the current target.
-//
-// Open Q: CoreImage CIFilter("CIQRCodeGenerator") is available on macOS 14+
-// (used by the renderer). Verify at demo time; if the bitmap is blank, the
-// AnyQRMarker bridge in KatagamiSwiftUIRenderer may need the
-// bridgeIfQRCode() path wired — surface to operator.
+// QR rendering note: ViewNode has no native QR bitmap primitive.
+// The renderer currently shows ViewNode.badge(text: deeplink) as a capsule label.
+// A CoreImage escape-hatch can be wired at the renderer call-site to produce
+// an actual bitmap when needed.
 
 import SwiftUI
 import KatagamiCore
@@ -32,8 +28,7 @@ public struct SMQRPreviewProvider: WidgetPreviewProvider {
             showCaption: true
         )
         let widget = SMQRKatagami(config: config)
-        let renderer = KatagamiSwiftUIRenderer()
-        return (try? renderer.render(widget, theme: KatagamiThemePreset.kintsugi))
-            ?? AnyView(Text("SMQR render failed").foregroundStyle(.orange))
+        let renderer = SwiftUIRenderer()
+        return renderer.renderView(widget, context: RenderContext(target: .swiftUI))
     }
 }

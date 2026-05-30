@@ -21,12 +21,10 @@
 // swift run local only — no bundle-id needed for this slice.
 
 import AppKit
+import CTechWidgetPreviewProviders  // Hop α (2026-05-30): re-enabled — ShikkiView/ViewNode API
 import DSStorybookKit
 import Foundation
 import SwiftUI
-// TODO(hop-f): Re-enable CTechWidgetPreviewProviders once sm-widgets-native migrates from
-// shikki Katagami DSL API to shi-design ViewNode API.
-// import CTechWidgetPreviewProviders
 #if canImport(SigmaWidgetPreviewBridge)
 import SigmaWidgetPreviewBridge
 #endif
@@ -67,10 +65,8 @@ struct DSStorybookSwiftUIApp: App {
         KatagamiPrimitivePreviewProviders.registerAll()
         // 2. Override the 8 canonical atoms with shi-design's authoritative bodies (U-A).
         KagamiStorybookCanonicalBridge.registerAll()
-        // TODO(hop-f): CTechWidgetPreviewProviders.registerAll() — re-enable after
-        // sm-widgets-native migrates to shi-design ViewNode API. C-tech widgets show
-        // orange "No provider registered" fallback until then.
-        // CTechWidgetPreviewProviders.registerAll()
+        // 3. Register 6 c-tech widget providers (Hop α: SMWidgetsKatagami on ViewNode API).
+        CTechWidgetPreviewProviders.registerAll()
         #if canImport(SigmaWidgetPreviewBridge)
         SigmaWidgetPreviewBridge.registerAll()
         #endif

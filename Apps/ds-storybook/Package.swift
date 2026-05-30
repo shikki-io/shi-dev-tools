@@ -38,12 +38,11 @@ let package = Package(
         .package(
             path: "../../../katagami"
         ),
-        // TODO(hop-f): Re-enable sm-widgets-native + katagami-player once SMWidgetsKatagami
-        // is migrated from shikki/packages/Katagami DSL API (KatagamiView, KatagamiShadowedCard,
-        // KatagamiSwiftUIRenderer) to shi-design's ViewNode/ShikkiView API. Until then, c-tech
-        // widget previews show the orange "No provider registered" fallback in the sidebar.
-        // .package(path: "/Users/jeoffrey/.shikki/workspaces/obyw-one/projects/katagami-player"),
-        // .package(path: "/Users/jeoffrey/.shikki/workspaces/cliff-tech/projects/sm-widgets-native"),
+        // Hop α (2026-05-30): re-enabled sm-widgets-native now that SMWidgetsKatagami is
+        // migrated to shi-design's ViewNode/ShikkiView API.
+        // Note: SMWidgets (not SMWidgetsKatagami) depends on katagami-player; that dep is
+        // pulled transitively so ds-storybook does NOT need to declare it directly.
+        .package(path: "/Users/jeoffrey/.shikki/workspaces/cliff-tech/projects/sm-widgets-native/packages/SMWidgets"),
         // swift-snapshot-testing (Point-Free) — SwiftUI/NSView pixel snapshot tests.
         // Test target only — not linked into production targets.
         .package(
@@ -71,30 +70,25 @@ let package = Package(
             ],
             path: "Sources/DSStorybookKit"
         ),
-        // TODO(hop-f): CTechWidgetPreviewProviders re-enabled once sm-widgets-native migrates
-        // from shikki's Katagami DSL API to shi-design's ViewNode/ShikkiView API (Hop F).
-        // Temporarily removed to unblock Hop D build (shi-design dep is incompatible with
-        // the shikki Katagami DSL types used in SMWidgetsKatagami).
-        // .target(
-        //     name: "CTechWidgetPreviewProviders",
-        //     dependencies: [
-        //         "DSStorybookKit",
-        //         .product(name: "KatagamiCore", package: "katagami"),
-        //         .product(name: "KatagamiSwiftUI", package: "katagami"),
-        //         .product(name: "SMWidgetsKatagami", package: "sm-widgets-native"),
-        //         .product(name: "SMWidgetsCore", package: "sm-widgets-native"),
-        //     ],
-        //     path: "Sources/CTechWidgetPreviewProviders"
-        // ),
+        // Hop α (2026-05-30): re-enabled — SMWidgetsKatagami now uses shi-design ViewNode API.
+        .target(
+            name: "CTechWidgetPreviewProviders",
+            dependencies: [
+                "DSStorybookKit",
+                .product(name: "KatagamiCore", package: "katagami"),
+                .product(name: "KatagamiSwiftUI", package: "katagami"),
+                .product(name: "SMWidgetsKatagami", package: "SMWidgets"),
+                .product(name: "SMWidgetsCore", package: "SMWidgets"),
+            ],
+            path: "Sources/CTechWidgetPreviewProviders"
+        ),
         // Executable: CLI entry point (--catalog flag, arguments parsed manually).
         .executableTarget(
             name: "DSStorybookApp",
             dependencies: [
                 "DSStorybookKit",
-                // TODO(hop-f): Re-add CTechWidgetPreviewProviders after sm-widgets-native migrates
-                // from shikki Katagami DSL API (KatagamiView, KatagamiShadowedCard, etc.) to
-                // shi-design's ViewNode/ShikkiView API.
-                // "CTechWidgetPreviewProviders",
+                // Hop α (2026-05-30): re-enabled — SMWidgetsKatagami on shi-design ViewNode API.
+                "CTechWidgetPreviewProviders",
                 // TODO(hop-e): Re-add SigmaWidgetPreviewBridge after sigma-analytics migrates
                 // from shikki/packages/Katagami to shi-design (blocked on KatagamiWeb landing there).
                 // .product(name: "SigmaWidgetPreviewBridge", package: "sources"),
@@ -106,19 +100,19 @@ let package = Package(
             dependencies: [
                 "DSStorybookKit",
                 .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
-                // TODO(hop-f): Re-add CTechWidgetPreviewProviders once sm-widgets-native migrates.
-                // "CTechWidgetPreviewProviders",
+                // Hop α (2026-05-30): CTechWidgetPreviewProviders now available.
+                "CTechWidgetPreviewProviders",
             ],
             path: "Tests/DSStorybookKitTests"
         ),
-        // TODO(hop-f): Re-enable CTechWidgetPreviewProvidersTests after sm-widgets-native migration.
-        // .testTarget(
-        //     name: "CTechWidgetPreviewProvidersTests",
-        //     dependencies: [
-        //         "CTechWidgetPreviewProviders",
-        //         "DSStorybookKit",
-        //     ],
-        //     path: "Tests/CTechWidgetPreviewProvidersTests"
-        // ),
+        // Hop α (2026-05-30): re-enabled — SMWidgetsKatagami migrated to ViewNode API.
+        .testTarget(
+            name: "CTechWidgetPreviewProvidersTests",
+            dependencies: [
+                "CTechWidgetPreviewProviders",
+                "DSStorybookKit",
+            ],
+            path: "Tests/CTechWidgetPreviewProvidersTests"
+        ),
     ]
 )

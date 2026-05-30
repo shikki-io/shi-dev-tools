@@ -1,5 +1,5 @@
 {
-  "originHash" : "91f259b7f01e9a862ceb481321f293c4bab993a58440b65fe8e4a9032c211762",
+  "originHash" : "19f3a2969b1eb53f213e40900ba393ff26fee01e29c17e4e209616cc180dbbef",
   "pins" : [
     {
       "identity" : "corekit",
@@ -7,6 +7,15 @@
       "location" : "https://github.com/FJ-Studios/CoreKit",
       "state" : {
         "revision" : "55c7eaab259f89dffe3e49b1c076d909decd022d",
+        "version" : "0.1.0"
+      }
+    },
+    {
+      "identity" : "netkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FJ-Studios/NetKit",
+      "state" : {
+        "revision" : "abe013ab6acbad56dd83e7a6f8834ca777db3d82",
         "version" : "0.1.0"
       }
     },

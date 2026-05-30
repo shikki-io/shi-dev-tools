@@ -1,12 +1,12 @@
 // SMCartPreviewProvider.swift — CTechWidgetPreviewProviders
 // kagami-scope: exempt
 //
-// Renders SMCartKatagami (W7) via .swiftUI(theme:).
+// Renders SMCartKatagami (W7) via SwiftUIRenderer.renderView(_:context:).
+// Hop α (2026-05-30): migrated from KatagamiSwiftUIRenderer / KatagamiThemePreset
+// to shi-design's SwiftUIRenderer API.
 //
-// KatagamiDrawer: when isOpen = true the renderer renders the inner content
-// directly (the drawer chrome — sheet/overlay — is the host's responsibility
-// per KatagamiSwiftUIRenderer.bridgeIfDrawer comment). We set isOpen = true
-// so the cart items are always visible in the storybook preview.
+// SMCartKatagami renders ViewNode.box as the cart surface (no KatagamiDrawer).
+// isOpen = true so the cart items are always visible in the storybook preview.
 //
 // Demo: 2 cart items + EUR total.
 
@@ -52,8 +52,7 @@ public struct SMCartPreviewProvider: WidgetPreviewProvider {
         )
 
         let widget = SMCartKatagami(snapshot: snapshot, isOpen: true)
-        let renderer = KatagamiSwiftUIRenderer()
-        return (try? renderer.render(widget, theme: KatagamiThemePreset.kintsugi))
-            ?? AnyView(Text("SMCart render failed").foregroundStyle(.orange))
+        let renderer = SwiftUIRenderer()
+        return renderer.renderView(widget, context: RenderContext(target: .swiftUI))
     }
 }
