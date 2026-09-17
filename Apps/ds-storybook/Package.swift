@@ -42,7 +42,14 @@ let package = Package(
         // migrated to shi-design's ViewNode/ShikkiView API.
         // Note: SMWidgets (not SMWidgetsKatagami) depends on katagami-player; that dep is
         // pulled transitively so ds-storybook does NOT need to declare it directly.
-        .package(path: "/Users/jeoffrey/.shikki/workspaces/cliff-tech/projects/sm-widgets-native/packages/SMWidgets"),
+        //
+        // 2026-09-14 (session 535acd03): pointed at the sm-widgets-native worktree that
+        // carries the KatagamiCanonical import fix (11 SMWidgetsKatagami sources split
+        // into "ViewNode/ShikkiView bucket" → import KatagamiCore vs "DSL bucket" →
+        // import KatagamiCanonical). The operator's main sm-widgets-native checkout
+        // stays on its untouched branch until the fix lands upstream via c-tech PR #51's
+        // rebase; until then, this worktree keeps the ds-storybook build green.
+        .package(path: "/Users/jeoffrey/.shikki/worktrees/sm-widgets-native-ctech-fix-2026-09-14/packages/SMWidgets"),
         // swift-snapshot-testing (Point-Free) — SwiftUI/NSView pixel snapshot tests.
         // Test target only — not linked into production targets.
         .package(
@@ -71,6 +78,8 @@ let package = Package(
             path: "Sources/DSStorybookKit"
         ),
         // Hop α (2026-05-30): re-enabled — SMWidgetsKatagami now uses shi-design ViewNode API.
+        // 2026-09-14: re-enabled against the sm-widgets-native-ctech-fix worktree
+        // (see note on the SMWidgets dep above).
         .target(
             name: "CTechWidgetPreviewProviders",
             dependencies: [
@@ -88,12 +97,21 @@ let package = Package(
             dependencies: [
                 "DSStorybookKit",
                 // Hop α (2026-05-30): re-enabled — SMWidgetsKatagami on shi-design ViewNode API.
+                // 2026-09-14: re-enabled after fixing sm-widgets-native drift in a worktree.
                 "CTechWidgetPreviewProviders",
                 // TODO(hop-e): Re-add SigmaWidgetPreviewBridge after sigma-analytics migrates
                 // from shikki/packages/Katagami to shi-design (blocked on KatagamiWeb landing there).
                 // .product(name: "SigmaWidgetPreviewBridge", package: "sources"),
             ],
-            path: "Sources/DSStorybookApp"
+            path: "Sources/DSStorybookApp",
+            resources: [
+                // Two bundled catalogs — loadManifestFromArgs() merges them when no
+                // --catalog is provided, so a double-click on ds-storybook.app opens
+                // with 28 primitives + 6 c-tech widgets already visible in the
+                // sidebar. Any --catalog <path> arg replaces the merge entirely.
+                .copy("Resources/default-catalog.json"),
+                .copy("Resources/ctech-catalog.json"),
+            ]
         ),
         .testTarget(
             name: "DSStorybookKitTests",
@@ -101,11 +119,13 @@ let package = Package(
                 "DSStorybookKit",
                 .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
                 // Hop α (2026-05-30): CTechWidgetPreviewProviders now available.
+                // 2026-09-14: re-enabled after fixing sm-widgets-native drift.
                 "CTechWidgetPreviewProviders",
             ],
             path: "Tests/DSStorybookKitTests"
         ),
         // Hop α (2026-05-30): re-enabled — SMWidgetsKatagami migrated to ViewNode API.
+        // 2026-09-14: re-enabled after fixing sm-widgets-native drift.
         .testTarget(
             name: "CTechWidgetPreviewProvidersTests",
             dependencies: [

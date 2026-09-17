@@ -21,7 +21,10 @@
 // swift run local only — no bundle-id needed for this slice.
 
 import AppKit
-import CTechWidgetPreviewProviders  // Hop α (2026-05-30): re-enabled — ShikkiView/ViewNode API
+// Hop α (2026-05-30): re-enabled — ShikkiView/ViewNode API
+// 2026-09-14 (session 535acd03): re-enabled after fixing sm-widgets-native drift
+// against the worktree at ~/.shikki/worktrees/sm-widgets-native-ctech-fix-2026-09-14.
+import CTechWidgetPreviewProviders
 import DSStorybookKit
 import Foundation
 import SwiftUI
@@ -111,41 +114,72 @@ struct DSStorybookSwiftUIApp: App {
     private static func loadManifestFromArgs() -> CatalogManifest {
         let args = CommandLine.arguments
 
-        guard let catalogIdx = args.firstIndex(of: "--catalog"),
-              catalogIdx + 1 < args.count else {
-
-            if !args.contains("--help") && !args.contains("-h") {
-                fputs("ds-storybook: no --catalog provided — opening with empty catalog.\n", stderr)
-                fputs("Usage: ds-storybook --catalog <path-to-manifest.json>\n", stderr)
+        // Path 1 — explicit --catalog <file>.
+        if let catalogIdx = args.firstIndex(of: "--catalog"),
+           catalogIdx + 1 < args.count {
+            let path = args[catalogIdx + 1]
+            do {
+                let manifest = try loadManifest(at: path)
+                print("ds-storybook: loaded \(manifest.entryCount) widget\(manifest.entryCount == 1 ? "" : "s") from \(path)")
+                for entry in manifest.entries {
+                    print("  [\(entry.wave)] \(entry.displayName) (\(entry.widgetKind)) — \(entry.primitiveList.count) primitives")
+                }
+                if args.contains("--list") { exit(0) }
+                return manifest
+            } catch {
+                fputs("ds-storybook error: \(error.localizedDescription)\n", stderr)
+                exit(1)
             }
-
-            if args.contains("--list") {
-                fputs("ds-storybook: 0 widgets\n", stdout)
-                exit(0)
-            }
-
-            return CatalogManifest(entries: [])
         }
 
-        let path = args[catalogIdx + 1]
-
-        do {
-            let manifest = try loadManifest(at: path)
-
-            print("ds-storybook: loaded \(manifest.entryCount) widget\(manifest.entryCount == 1 ? "" : "s") from \(path)")
-            for entry in manifest.entries {
-                print("  [\(entry.wave)] \(entry.displayName) (\(entry.widgetKind)) — \(entry.primitiveList.count) primitives")
+        // Path 2 — no --catalog. Merge every bundled catalog so a
+        // fresh install (or a double-click on ds-storybook.app) opens with
+        // the 28 Katagami canonical primitives AND the 6 c-tech widgets
+        // already visible in the sidebar. Bundle.module (SPM sibling
+        // bundle beside the executable — used by `swift run`) is tried
+        // first; Bundle.main (Contents/Resources/ in the packaged .app)
+        // is tried second. Missing catalogs are skipped silently — a build
+        // that has the c-tech provider bridge disabled ships without
+        // ctech-catalog.json and still opens on the primitives alone.
+        let bundledCatalogNames = ["default-catalog", "ctech-catalog"]
+        var mergedEntries: [CatalogEntry] = []
+        var loadedFrom: [String] = []
+        for name in bundledCatalogNames {
+            let url = Bundle.module.url(forResource: name, withExtension: "json")
+                ?? Bundle.main.url(forResource: name, withExtension: "json")
+            guard let url else { continue }
+            do {
+                let data = try Data(contentsOf: url)
+                let manifest = try CatalogManifest.decode(from: data)
+                mergedEntries.append(contentsOf: manifest.entries)
+                loadedFrom.append("\(name).json(\(manifest.entryCount))")
+            } catch {
+                fputs("ds-storybook: bundled \(name).json failed to load: \(error.localizedDescription)\n", stderr)
             }
-
+        }
+        if !mergedEntries.isEmpty {
+            let manifest = CatalogManifest(entries: mergedEntries)
+            fputs("ds-storybook: no --catalog provided — loaded \(manifest.entryCount) widgets from \(loadedFrom.joined(separator: " + ")).\n", stderr)
+            fputs("            pass --catalog <path> to load a project-specific manifest instead.\n", stderr)
             if args.contains("--list") {
+                for entry in manifest.entries {
+                    print("  [\(entry.wave)] \(entry.displayName) (\(entry.widgetKind))")
+                }
                 exit(0)
             }
-
             return manifest
-        } catch {
-            fputs("ds-storybook error: \(error.localizedDescription)\n", stderr)
-            exit(1)
         }
+
+        // Path 3 — no bundle Resource (dev-mode where Bundle.module is empty).
+        if !args.contains("--help") && !args.contains("-h") {
+            fputs("ds-storybook: no --catalog provided and no bundled default — opening empty.\n", stderr)
+            fputs("Usage: ds-storybook --catalog <path-to-manifest.json>\n", stderr)
+        }
+        if args.contains("--list") {
+            fputs("ds-storybook: 0 widgets\n", stdout)
+            exit(0)
+        }
+        return CatalogManifest(entries: [])
     }
 
     private static func loadManifest(at path: String) throws -> CatalogManifest {

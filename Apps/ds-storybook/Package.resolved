@@ -4,10 +4,10 @@
     {
       "identity" : "corekit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/FJ-Studios/CoreKit",
+      "location" : "https://github.com/FJ-Studios/CoreKit.git",
       "state" : {
-        "revision" : "55c7eaab259f89dffe3e49b1c076d909decd022d",
-        "version" : "0.1.0"
+        "branch" : "main",
+        "revision" : "0fa70936c4bee712d9a620ed1a61000e9ab96e4d"
       }
     },
     {
@@ -17,6 +17,24 @@
       "state" : {
         "revision" : "abe013ab6acbad56dd83e7a6f8834ca777db3d82",
         "version" : "0.1.0"
+      }
+    },
+    {
+      "identity" : "swift-asn1",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-asn1.git",
+      "state" : {
+        "revision" : "a9a5efd40eaf558a2bcd48d64b1d1646be686008",
+        "version" : "1.7.1"
+      }
+    },
+    {
+      "identity" : "swift-crypto",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-crypto.git",
+      "state" : {
+        "revision" : "95ba0316a9b733e92bb6b071255ff46263bbe7dc",
+        "version" : "3.15.1"
       }
     },
     {
